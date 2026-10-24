@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Debug\\FileInterface.obj",
+            "outputs": [
+                "Debug\\FileInterface.cpp.obj.dt.module.json",
+                "Debug\\FileInterface.cpp.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}

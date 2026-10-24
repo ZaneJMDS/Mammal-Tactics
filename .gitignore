@@ -1,3 +1,12 @@
+# Additional
+*.user
+
+# VS Folders
+.vs/
+x64/
+x86/
+
+
 # Prerequisites
 *.d
 

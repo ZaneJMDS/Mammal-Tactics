@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Debug\\SaveManager.obj",
+            "outputs": [
+                "Debug\\SaveManager.cpp.obj.dt.module.json",
+                "Debug\\SaveManager.cpp.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}
