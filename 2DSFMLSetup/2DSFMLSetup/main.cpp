@@ -10,6 +10,7 @@ File name   :   Main.cpp
 
 #include "Level.h"
 #include "SaveManager.h"
+#include "Button.h"
 
 int main()
 {
@@ -27,9 +28,18 @@ int main()
     // Player setup
     Player player;
 
+    // Enemy setup
+    Enemy enemy;
+
     // Vsync setup
     bool Vsync = true;
     window.setVerticalSyncEnabled(true);
+
+    // Button setup
+    std::vector<Button> buttons;
+
+    sf::Font Font1;
+    const int text_size = 16;
 
     while (window.isOpen())
     {
@@ -76,13 +86,14 @@ int main()
                 }
 
                 // Player Movement
-                player.Move();
+                player.Move(&enemy);
             }
         }
 
         // Window events
         window.clear();
         
+        // Draw events
         // Draw all level tiles
         for (int i = 0; i < Level1.level_tiles.size(); i++)
         {
@@ -95,6 +106,9 @@ int main()
 
         // Draw the player
         window.draw(player.player_shape);
+
+        // Draw the enemy
+        window.draw(enemy.enemy_shape);
 
         window.display();
 

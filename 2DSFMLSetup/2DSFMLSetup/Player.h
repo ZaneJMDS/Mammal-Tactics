@@ -6,6 +6,7 @@ File name   :   Player.h
 **************************************************************************/
 
 #include <SFML/Graphics.hpp>
+#include "Enemy.h" // Player moves when enmy moves for now
 #pragma once
 
 class Player
@@ -18,7 +19,7 @@ public:
 	~Player();
 
 	// Actions the player can take on their turn
-	void Move();
+	void Move(Enemy* _Enemy);
 	void Attack();
 	void Special();
 

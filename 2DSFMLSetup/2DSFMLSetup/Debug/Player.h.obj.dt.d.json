@@ -237,7 +237,9 @@
             "c:\\users\\pizza\\source\\repos\\mammal-tactics\\2dsfmlsetup\\2dsfmlsetup\\include\\sfml\\system\\fileinputstream.hpp",
             "c:\\users\\pizza\\source\\repos\\mammal-tactics\\2dsfmlsetup\\2dsfmlsetup\\include\\sfml\\system\\inputstream.hpp",
             "c:\\users\\pizza\\source\\repos\\mammal-tactics\\2dsfmlsetup\\2dsfmlsetup\\include\\sfml\\system\\memoryinputstream.hpp",
-            "c:\\users\\pizza\\source\\repos\\mammal-tactics\\2dsfmlsetup\\2dsfmlsetup\\include\\sfml\\system\\sleep.hpp"
+            "c:\\users\\pizza\\source\\repos\\mammal-tactics\\2dsfmlsetup\\2dsfmlsetup\\include\\sfml\\system\\sleep.hpp",
+            "c:\\users\\pizza\\source\\repos\\mammal-tactics\\2dsfmlsetup\\2dsfmlsetup\\enemy.h",
+            "c:\\program files\\microsoft visual studio\\18\\community\\vc\\tools\\msvc\\14.51.36231\\include\\random"
         ],
         "ImportedModules": [],
         "ImportedHeaderUnits": []

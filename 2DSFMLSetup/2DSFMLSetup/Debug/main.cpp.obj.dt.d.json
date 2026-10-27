@@ -242,9 +242,12 @@
             "c:\\program files\\microsoft visual studio\\18\\community\\vc\\tools\\msvc\\14.51.36231\\include\\ostream",
             "c:\\users\\pizza\\source\\repos\\mammal-tactics\\2dsfmlsetup\\2dsfmlsetup\\level.h",
             "c:\\users\\pizza\\source\\repos\\mammal-tactics\\2dsfmlsetup\\2dsfmlsetup\\player.h",
+            "c:\\users\\pizza\\source\\repos\\mammal-tactics\\2dsfmlsetup\\2dsfmlsetup\\enemy.h",
+            "c:\\program files\\microsoft visual studio\\18\\community\\vc\\tools\\msvc\\14.51.36231\\include\\random",
             "c:\\program files\\microsoft visual studio\\18\\community\\vc\\tools\\msvc\\14.51.36231\\include\\fstream",
             "c:\\program files\\microsoft visual studio\\18\\community\\vc\\tools\\msvc\\14.51.36231\\include\\__msvc_filebuf.hpp",
-            "c:\\users\\pizza\\source\\repos\\mammal-tactics\\2dsfmlsetup\\2dsfmlsetup\\savemanager.h"
+            "c:\\users\\pizza\\source\\repos\\mammal-tactics\\2dsfmlsetup\\2dsfmlsetup\\savemanager.h",
+            "c:\\users\\pizza\\source\\repos\\mammal-tactics\\2dsfmlsetup\\2dsfmlsetup\\button.h"
         ],
         "ImportedModules": [],
         "ImportedHeaderUnits": []

@@ -10,7 +10,7 @@ Player::~Player()
 {
 }
 
-void Player::Move()
+void Player::Move(Enemy* _Enemy)
 {
 	// Left
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
@@ -19,6 +19,7 @@ void Player::Move()
 		if (player_shape.getPosition().x > 40)
 		{
 			player_shape.move({ -64.f, 0.f });
+			_Enemy->Move();
 		}
 	}
 
@@ -29,6 +30,7 @@ void Player::Move()
 		if (player_shape.getPosition().x < 550)
 		{
 			player_shape.move({ 64.f, 0.f });
+			_Enemy->Move();
 		}
 	}
 
@@ -39,6 +41,7 @@ void Player::Move()
 		if (player_shape.getPosition().y > 40)
 		{
 			player_shape.move({ 0.f, -64.f });
+			_Enemy->Move();
 		}
 	}
 
@@ -49,6 +52,7 @@ void Player::Move()
 		if (player_shape.getPosition().y < 550)
 		{
 			player_shape.move({ 0.f, 64.f });
+			_Enemy->Move();
 		}
 	}
 }
