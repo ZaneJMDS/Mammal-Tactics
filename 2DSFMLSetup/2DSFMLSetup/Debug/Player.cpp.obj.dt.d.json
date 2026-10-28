@@ -240,7 +240,9 @@
             "c:\\users\\pizza\\source\\repos\\mammal-tactics\\2dsfmlsetup\\2dsfmlsetup\\include\\sfml\\system\\memoryinputstream.hpp",
             "c:\\users\\pizza\\source\\repos\\mammal-tactics\\2dsfmlsetup\\2dsfmlsetup\\include\\sfml\\system\\sleep.hpp",
             "c:\\users\\pizza\\source\\repos\\mammal-tactics\\2dsfmlsetup\\2dsfmlsetup\\enemy.h",
-            "c:\\program files\\microsoft visual studio\\18\\community\\vc\\tools\\msvc\\14.51.36231\\include\\random"
+            "c:\\program files\\microsoft visual studio\\18\\community\\vc\\tools\\msvc\\14.51.36231\\include\\random",
+            "c:\\program files\\microsoft visual studio\\18\\community\\vc\\tools\\msvc\\14.51.36231\\include\\iostream",
+            "c:\\program files\\microsoft visual studio\\18\\community\\vc\\tools\\msvc\\14.51.36231\\include\\ostream"
         ],
         "ImportedModules": [],
         "ImportedHeaderUnits": []

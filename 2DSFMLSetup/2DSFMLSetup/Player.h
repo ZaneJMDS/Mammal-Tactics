@@ -20,11 +20,14 @@ public:
 
 	// Actions the player can take on their turn
 	void Move(Enemy* _Enemy);
-	void Attack();
-	void Special();
+	void Attack(Enemy* _Enemy);
+	void Special(Enemy* _Enemy);
 
 	void Animate();
 	void Reset();
+
+	int GetHealth() { return health; }
+	int GetDamage() { return damage; }
 
 private:
 	int health = 10;

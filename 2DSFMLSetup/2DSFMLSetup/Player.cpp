@@ -4,6 +4,8 @@ Player::Player()
 {
 	player_shape.setSize({32.f, 32.f});
 	player_shape.setFillColor(sf::Color::Black);
+
+	Reset();
 }
 
 Player::~Player()
@@ -57,11 +59,14 @@ void Player::Move(Enemy* _Enemy)
 	}
 }
 
-void Player::Attack()
+// Player has selected an enemy and attacks them
+void Player::Attack(Enemy* _Enemy)
 {
+	_Enemy->SetHealth(_Enemy->GetHealth() - damage);
 }
 
-void Player::Special()
+// Could do area damage, heal, or buff
+void Player::Special(Enemy* _Enemy)
 {
 }
 
@@ -69,6 +74,8 @@ void Player::Animate()
 {
 }
 
+// Bring player back to the starting square when they die
 void Player::Reset()
 {
+	player_shape.setPosition({ 0.f, 0.f });
 }

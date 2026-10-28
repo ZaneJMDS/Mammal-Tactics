@@ -4,7 +4,8 @@ Enemy::Enemy()
 {
 	enemy_shape.setSize({ 32.f, 32.f });
 	enemy_shape.setFillColor(sf::Color::Green);
-	enemy_shape.setPosition({ 64.f, 64.f });
+	
+	Reset();
 
 	srand(time(0)); 
 }
@@ -61,6 +62,12 @@ void Enemy::Move()
 
 		else { Move(); }
 	}
+
+	// Kill the enemy
+	if (health < 0)
+	{
+		std::cout << "I am dead";
+	}
 }
 
 void Enemy::Attack()
@@ -77,4 +84,5 @@ void Enemy::Animate()
 
 void Enemy::Reset()
 {
+	enemy_shape.setPosition({ 64.f, 64.f });
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <Random>
+#include <iostream>
 
 class Enemy
 {
@@ -18,6 +19,10 @@ public:
 
 	void Animate();
 	void Reset();
+
+	int GetHealth() { return health; }
+	void SetHealth(int _health) { health = _health; }
+	int GetDamage() { return damage; }
 
 private:
 	int health = 10;

@@ -38,9 +38,26 @@ int main()
     // Button setup
     std::vector<Button> buttons;
 
+    // Text setup
     sf::Font Font1;
-    const int text_size = 16;
+    if (!Font1.openFromFile("Cinzel-Bold.ttf"))
+    {
+        throw "Font could not be loaded";
+    }
 
+    const int text_size = 32;
+
+    sf::Text TitleText(Font1, "Mammal Tactics", text_size);
+    TitleText.setPosition({0, 650});
+
+    // Health of player and enemy
+    sf::Text PlayerHealthText(Font1, "Player health: ", text_size);
+    PlayerHealthText.setPosition({800, 0});
+
+    sf::Text EnemyHealthText(Font1, "Enemy health: ", text_size);
+    EnemyHealthText.setPosition({ 800, 100 });
+
+    // Game loop
     while (window.isOpen())
     {
         // Only while window is selected
@@ -85,6 +102,12 @@ int main()
                     std::cout << "\nLevels Beat: " << Save1.levels_beaten;
                 }
 
+                // Manual attack button
+                if (keyPressed->code == sf::Keyboard::Key::Space)
+                {
+                    player.Attack(&enemy);
+                }
+
                 // Player Movement
                 player.Move(&enemy);
             }
@@ -109,6 +132,15 @@ int main()
 
         // Draw the enemy
         window.draw(enemy.enemy_shape);
+
+        // Draw the text here
+        window.draw(TitleText);
+
+        PlayerHealthText.setString("Player Health: " + std::to_string(player.GetHealth()));
+        window.draw(PlayerHealthText);
+
+        EnemyHealthText.setString("Enemy Health: " + std::to_string(enemy.GetHealth()));
+        window.draw(EnemyHealthText);
 
         window.display();
 
