@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Debug\\xutility.obj",
+            "outputs": [
+                "Debug\\xutility.obj.dt.module.json",
+                "Debug\\xutility.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}

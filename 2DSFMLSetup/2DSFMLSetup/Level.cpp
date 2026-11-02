@@ -21,10 +21,8 @@ void Level::LoadLevel()
 	// Load file to 2D Array
 	if (load_file_stream.is_open())
 	{
-		// collumns
 		while (std::getline(load_file_stream, load_file_string))
 		{
-			// rows
 			for (int i = 0; i < load_file_string.size(); i++)
 			{
 				level_array[i][line_count] = load_file_string[i];
@@ -48,6 +46,14 @@ void Level::LoadLevel()
 			NewBox->setOutlineThickness(-2.f);
 			NewBox->setOutlineColor(sf::Color::Black);
 			level_back_tiles.push_back(NewBox);
+
+			// Enemy
+			if (level_array[x][y] == 'e')
+			{
+				sf::Vector2f start_pos(x * 64, y * 64);
+				Enemy NewEnemy(start_pos);
+				enemies.push_back(NewEnemy);
+			}
 		}
 	}
 
@@ -70,4 +76,10 @@ void Level::UnloadLevel()
 void Level::Reset(Player* _player)
 {
 	_player->Reset();
+
+	// Reset all the enemies
+	for (int i = 0; i < enemies.size(); i++)
+	{
+		enemies[i].Reset();
+	}
 }

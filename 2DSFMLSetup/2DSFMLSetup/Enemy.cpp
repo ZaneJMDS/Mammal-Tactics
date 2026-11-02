@@ -1,10 +1,11 @@
 #include "Enemy.h"
 
-Enemy::Enemy()
+Enemy::Enemy(sf::Vector2f _start_pos)
 {
 	enemy_shape.setSize({ 32.f, 32.f });
 	enemy_shape.setFillColor(sf::Color::Green);
-	
+	start_pos = _start_pos;
+
 	Reset();
 
 	srand(time(0)); 
@@ -16,7 +17,7 @@ Enemy::~Enemy()
 
 void Enemy::Move()
 {
-	int move_input = rand() % 4;
+	int move_input = rand() % 4; // Decides the direction
 
 	// Left
 	// Check not out of bounds
@@ -84,5 +85,5 @@ void Enemy::Animate()
 
 void Enemy::Reset()
 {
-	enemy_shape.setPosition({ 64.f, 64.f });
+	enemy_shape.setPosition(start_pos);
 }

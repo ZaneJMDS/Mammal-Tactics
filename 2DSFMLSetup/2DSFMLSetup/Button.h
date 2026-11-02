@@ -12,6 +12,7 @@ class Button
 {
 public:
 	sf::RectangleShape m_ButtonShape;
+	sf::Text text;
 
 	Button(sf::Vector2f _position, sf::Color _color, sf::Text _text);
 	~Button();

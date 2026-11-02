@@ -22,6 +22,8 @@ public:
 
 	std::vector<std::vector<sf::RectangleShape*>> level_tiles; // Remember to add new tiles to LoadLevel
 
+	std::vector<Enemy> enemies;
+
 	Level(std::string _filepath);
 	~Level();
 

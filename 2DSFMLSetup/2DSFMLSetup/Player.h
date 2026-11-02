@@ -14,6 +14,8 @@ class Player
 public:
 	// The player shape and texture should remain
 	sf::RectangleShape player_shape;
+	sf::Texture texture;
+	std::vector<sf::RectangleShape> range_tiles;
 
 	Player();
 	~Player();
@@ -31,6 +33,9 @@ public:
 
 private:
 	int health = 10;
+	const int max_health = 20;
 	int damage = 3;
+	float range = 64.f + 1.f; // Each tile is 64 by 64px
+	sf::Clock animation_clock;
 };
 
