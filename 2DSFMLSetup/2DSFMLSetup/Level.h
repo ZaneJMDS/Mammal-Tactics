@@ -19,10 +19,14 @@ public:
 	char level_array[level_width][level_height]; // Array holding level tiles
 
 	std::vector<sf::RectangleShape*> level_back_tiles;
+	std::vector<sf::RectangleShape*> wall_tiles;
 
 	std::vector<std::vector<sf::RectangleShape*>> level_tiles; // Remember to add new tiles to LoadLevel
 
+	sf::Texture player_tex;
+
 	std::vector<Enemy> enemies;
+	std::vector<Player> players;
 
 	Level(std::string _filepath);
 	~Level();

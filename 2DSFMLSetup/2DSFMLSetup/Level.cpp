@@ -2,6 +2,10 @@
 
 Level::Level(std::string _filepath) : filepath(_filepath)
 {
+	if (!player_tex.loadFromFile("Sprites/player.png"))
+	{
+		throw "Can't find player texture";
+	}
 }
 
 Level::~Level()
@@ -39,24 +43,47 @@ void Level::LoadLevel()
 		// rows
 		for (int x = 0; x < level_width; x++)
 		{
-			// Default tile
-			// Spawn a box at current location
-			sf::RectangleShape* NewBox = new sf::RectangleShape({ 64, 64 });
-			NewBox->setPosition(sf::Vector2f(x * 64, y * 64));
-			NewBox->setOutlineThickness(-2.f);
-			NewBox->setOutlineColor(sf::Color::Black);
-			level_back_tiles.push_back(NewBox);
+			// Wall
+			if (level_array[x][y] == 'w')
+			{
+				// Spawn a box at current location
+				sf::RectangleShape* NewBox = new sf::RectangleShape({ 64, 64 });
+				NewBox->setPosition(sf::Vector2f(x * 64, y * 64));
+				NewBox->setFillColor(sf::Color::Black);
+				wall_tiles.push_back(NewBox);
+			}
 
-			// Enemy
+			// Default tile
+			else
+			{
+				// Spawn a box at current location
+				sf::RectangleShape* NewBox = new sf::RectangleShape({ 64, 64 });
+				NewBox->setPosition(sf::Vector2f(x * 64, y * 64));
+				NewBox->setOutlineThickness(-2.f);
+				NewBox->setOutlineColor(sf::Color::Black);
+				level_back_tiles.push_back(NewBox);
+			}
+
+			// Default Enemy
 			if (level_array[x][y] == 'e')
 			{
 				sf::Vector2f start_pos(x * 64, y * 64);
 				Enemy NewEnemy(start_pos);
 				enemies.push_back(NewEnemy);
 			}
+
+			// Player start_pos
+			if (level_array[x][y] == 'p')
+			{
+				sf::Vector2f start_pos(x * 64, y * 64);
+				Player NewPlayer(start_pos);
+				NewPlayer.player_shape.setTexture(&player_tex);
+				players.push_back(NewPlayer);
+			}
 		}
 	}
 
+	level_tiles.push_back(wall_tiles);
 	level_tiles.push_back(level_back_tiles);
 }
 

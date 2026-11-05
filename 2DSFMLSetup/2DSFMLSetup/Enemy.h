@@ -12,13 +12,19 @@ public:
 	Enemy(sf::Vector2f _start_pos);
 	~Enemy();
 
-	// Actions the player can take on their turn
+	// Actions the enemy can take on their turn
 	void Move();
 	void Attack();
 	void Special();
 
+	// Indicators for if the player has this enemy selected
+	void SetTarget() { enemy_shape.setFillColor(sf::Color::Blue); }
+	void UnsetTarget() { enemy_shape.setFillColor(sf::Color::Green); }
+
 	void Animate();
 	void Reset();
+
+	void Display();
 
 	int GetHealth() { return health; }
 	void SetHealth(int _health) { health = _health; }

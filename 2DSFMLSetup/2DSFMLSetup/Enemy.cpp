@@ -15,53 +15,23 @@ Enemy::~Enemy()
 {
 }
 
+// Move the enemy in a random direction
 void Enemy::Move()
 {
-	int move_input = rand() % 4; // Decides the direction
+	int hor_input = rand() % 3; // Decides the direction from eight different options
+	int ver_input = rand() % 3;
+	float horizontal_movement[3] = { -64.f, 0, 64.f };
+	float vertical_movement[3] = { -64.f, 0, 64.f };
 
-	// Left
 	// Check not out of bounds
-	if (move_input == 0)
+	if (enemy_shape.getPosition().x + horizontal_movement[hor_input] < 550 && enemy_shape.getPosition().x + horizontal_movement[hor_input] > 40 && enemy_shape.getPosition().y + vertical_movement[ver_input] > 40 && enemy_shape.getPosition().y + vertical_movement[ver_input] < 550)
 	{
-		if (enemy_shape.getPosition().x > 40)
-		{
-			enemy_shape.move({ -64.f, 0.f });
-		}
-
-		else { Move(); }
+		enemy_shape.move({ horizontal_movement[hor_input], vertical_movement[ver_input] });
 	}
 
-	// Right
-	if (move_input == 1)
+	else
 	{
-		if (enemy_shape.getPosition().x < 550)
-		{
-			enemy_shape.move({ 64.f, 0.f });
-		}
-
-		else { Move(); }
-	}
-
-	// Up
-	if (move_input == 2)
-	{
-		if (enemy_shape.getPosition().y > 40)
-		{
-			enemy_shape.move({0.f, -64.f});
-		}
-
-		else { Move(); }
-	}
-
-	// Down
-	if (move_input == 3)
-	{
-		if (enemy_shape.getPosition().y < 550)
-		{
-			enemy_shape.move({ 0.f, 64.f });
-		}
-
-		else { Move(); }
+		Move();
 	}
 
 	// Kill the enemy
@@ -86,4 +56,11 @@ void Enemy::Animate()
 void Enemy::Reset()
 {
 	enemy_shape.setPosition(start_pos);
+	UnsetTarget(); // Reset level so player chooses a new target
+}
+
+// Display the enemies stats
+void Enemy::Display()
+{
+
 }

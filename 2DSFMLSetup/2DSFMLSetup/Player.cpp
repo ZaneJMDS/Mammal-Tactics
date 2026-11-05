@@ -1,17 +1,14 @@
 #include "Player.h"
 
-Player::Player()
+Player::Player(sf::Vector2f _start_pos) : PlayerFont("Cinzel-Bold.ttf"), PlayerText(PlayerFont, "", 16)
 {
+	start_pos = _start_pos;
+
 	player_shape.setSize({32.f, 32.f});
 
-	if (!texture.loadFromFile("Sprites/player.png"))
-	{
-		throw "Can't find player texture";
-	}
-	
 	// Location and size
+	PlayerText.setPosition({300, 700});
 	player_shape.setTextureRect(sf::IntRect({ 0, 0 }, { 32, 32 }));
-	player_shape.setTexture(&texture);
 
 	Reset();
 
@@ -20,7 +17,7 @@ Player::Player()
 	{
 		sf::RectangleShape NewRangeTile;
 		NewRangeTile.setSize({64.f, 64.f});
-		NewRangeTile.setFillColor(sf::Color(0, 0, 255, 128));
+		NewRangeTile.setFillColor(sf::Color(0, 0, 255, 128)); // See through blue
 
 		// First collumn
 		if (i < 3)
@@ -37,7 +34,6 @@ Player::Player()
 		// Third collumn
 		else
 		{
-			NewRangeTile.setPosition({});
 			NewRangeTile.setPosition({ 128.f, (float)(64 * (i - 6)) });
 		}
 
@@ -121,6 +117,41 @@ void Player::Move(Enemy* _Enemy)
 	}
 }
 
+void Player::MoveTo(sf::Vector2f _move_pos)
+{
+	sf::Vector2f move_pos;
+	move_pos.x = std::floor(_move_pos.x / 64) * 64;
+	move_pos.y = std::floor(_move_pos.y / 64) * 64;
+
+	// Check that the player is in range
+	if (abs(move_pos.x - player_shape.getPosition().x) < range && abs(move_pos.y - player_shape.getPosition().y) < range)
+	{
+		player_shape.setPosition(move_pos);
+
+		// First collumn
+		// Range tiles that move with the player
+		for (int i = 0; i < 9; i++)
+		{
+			if (i < 3)
+			{
+				range_tiles[i].setPosition({ -64.f + move_pos.x, (float)(64 * i) - 64.f + move_pos.y });
+			}
+
+			// Second collumn
+			else if (i < 6)
+			{
+				range_tiles[i].setPosition({ 0.f + move_pos.x, (float)(64 * (i - 3)) - 64.f + move_pos.y });
+			}
+
+			// Third collumn
+			else
+			{
+				range_tiles[i].setPosition({ 64.f + move_pos.x, (float)(64 * (i - 6)) - 64.f + move_pos.y });
+			}
+		}
+	}
+}
+
 // Player has selected an enemy and attacks them
 void Player::Attack(Enemy* _Enemy)
 {
@@ -172,6 +203,18 @@ void Player::Special(Enemy* _Enemy)
 		std::cout << "Damage up";
 		damage++;
 	}
+}
+
+// Get the stats comunicates to the player
+void Player::Display()
+{
+	PlayerText.setString(
+		"Player Stats: "
+		"Health: " + std::to_string(health) +
+		"Damage: " + std::to_string(damage) +
+		"Range: " + std::to_string(damage)
+	);
+	
 }
 
 // Animate the player's frames
