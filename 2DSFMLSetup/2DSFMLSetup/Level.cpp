@@ -6,6 +6,11 @@ Level::Level(std::string _filepath) : filepath(_filepath)
 	{
 		throw "Can't find player texture";
 	}
+
+	if (!entity_font.openFromFile("Cinzel-Bold.ttf"))
+	{
+		throw "Can't find entity text";
+	}
 }
 
 Level::~Level()
@@ -64,20 +69,26 @@ void Level::LoadLevel()
 				level_back_tiles.push_back(NewBox);
 			}
 
+			// Entities
 			// Default Enemy
 			if (level_array[x][y] == 'e')
 			{
 				sf::Vector2f start_pos(x * 64, y * 64);
 				Enemy NewEnemy(start_pos);
+				NewEnemy.entity_text.setFont(entity_font);
 				enemies.push_back(NewEnemy);
 			}
 
-			// Player start_pos
+			// Player
 			if (level_array[x][y] == 'p')
 			{
 				sf::Vector2f start_pos(x * 64, y * 64);
 				Player NewPlayer(start_pos);
+
+				// Why do I have to hold these here?
 				NewPlayer.player_shape.setTexture(&player_tex);
+				NewPlayer.entity_text.setFont(entity_font);
+
 				players.push_back(NewPlayer);
 			}
 		}
@@ -85,6 +96,14 @@ void Level::LoadLevel()
 
 	level_tiles.push_back(wall_tiles);
 	level_tiles.push_back(level_back_tiles);
+
+	if (players.size() == 0 || enemies.size() == 0)
+	{
+		throw "Level needs at least one player and enemy";
+	}
+
+	enemies[current_enemy].SetTarget();
+	players[current_player].SetTarget();
 }
 
 // Unload this level
@@ -100,13 +119,224 @@ void Level::UnloadLevel()
 }
 
 // Reset the room
-void Level::Reset(Player* _player)
+void Level::Reset()
 {
-	_player->Reset();
+	// Reset all the players
+	for (int i = 0; i < players.size(); i++)
+	{
+		players[i].Reset();
+	}
 
 	// Reset all the enemies
 	for (int i = 0; i < enemies.size(); i++)
 	{
 		enemies[i].Reset();
 	}
+}
+
+// Check info or move the player
+void Level::Click(sf::Vector2f _mouse_pos)
+{
+	for (int i = 0; i < enemies.size(); i++)
+	{
+		// Did user click on an enemy
+		if (enemies[i].enemy_shape.getGlobalBounds().contains(_mouse_pos))
+		{
+			// Change selected enemy
+			enemies[current_enemy].UnsetTarget();
+			current_enemy = i;
+		}
+	}
+
+	for (int i = 0; i < players.size(); i++)
+	{
+		// Did user click on an player
+		if (players[i].player_shape.getGlobalBounds().contains(_mouse_pos))
+		{
+			// Change selected player
+			players[current_player].UnsetTarget();
+			current_player = i;
+		}
+	}
+
+	// YIKES!!!
+	for (int i = 0; i < level_back_tiles.size(); i++)
+	{
+		for (int j = 0; j < players.size(); j++)
+		{
+			for (int k = 0; k < enemies.size(); k++)
+			{
+				// Not returning false
+				if (players[j].player_shape.getGlobalBounds().contains(_mouse_pos) || enemies[k].enemy_shape.getGlobalBounds().contains(_mouse_pos))
+				{
+
+				}
+
+				else
+				{
+					// Did user click on an empty tile
+					if (level_back_tiles[i]->getGlobalBounds().contains(_mouse_pos))
+					{
+						// Move the selected player
+						players[current_player].MoveTo(_mouse_pos);
+					}
+				}
+			}
+		}
+	}
+
+	enemies[current_enemy].SetTarget();
+	players[current_player].SetTarget();
+}
+
+// Display information to the user
+void Level::Display()
+{
+	// Player events
+	players[current_player].Animate();
+	players[current_player].Display();
+
+	// Enemy events
+	enemies[current_enemy].Animate();
+	enemies[current_enemy].Display();
+}
+
+// Check collision between entitys and tiles
+void Level::CollisionChecks()
+{
+	int k = 0;
+	// Check for collisions between player range tiles
+	for (int i = 0; i < players[current_player].range_tiles.size(); i++)
+	{
+		// AND Wall tiles
+		for (int j = 0; j < wall_tiles.size(); j++)
+		{
+			// This tile is colliding with this wall
+			if (players[current_player].range_tiles[i].getGlobalBounds().findIntersection(wall_tiles[j]->getGlobalBounds()))
+			{
+				players[current_player].range_tiles[i].setFillColor(sf::Color(0, 0, 0, 0));
+			}
+
+			// This tile isn't colliding with any wall
+			else if (k + 1 == wall_tiles.size())
+			{
+				players[current_player].range_tiles[i].setFillColor(sf::Color(0, 0, 255, 128)); // Light Blue
+			}
+
+			// Not colliding with this wall
+			else
+			{
+				k++;
+			}
+		}
+		k = 0;
+	}
+
+	// Wall tiles
+	for (int i = 0; i < wall_tiles.size(); i++)
+	{
+		// With player
+		if (players[current_player].player_shape.getGlobalBounds().findIntersection(wall_tiles[i]->getGlobalBounds()))
+		{
+			players[current_player].player_shape.move({ -64, 0 });
+		}
+
+		// With enemy
+		for (int j = 0; j < enemies.size(); j++)
+		{
+			if (enemies[j].enemy_shape.getGlobalBounds().findIntersection(wall_tiles[i]->getGlobalBounds()))
+			{
+				enemies[j].enemy_shape.move({ -64, 0 }); // TODO NEED TO IMPROVE
+			}
+		}
+	}
+}
+
+// Selected player attacks selected enemy and vice versa
+void Level::Combat()
+{
+	Attack(&players[current_player], &enemies[current_enemy]);
+
+	Attack(&enemies[current_enemy], &players[current_player]);
+}
+
+// First is attacker and second is blocker
+void Level::Attack(Entity* _attack, Entity* _defend)
+{
+	// Check the target is within range
+	if (abs(_defend->GetShape().getPosition().x - _attack->GetShape().getPosition().x < _attack->GetRange() && _defend->GetShape().getPosition().y - _attack->GetShape().getPosition().y < _attack->GetRange()))
+	{
+		int crit_hit = rand() % 100;
+
+		// Critical hit
+		if (crit_hit > _attack->GetCritChance())
+		{
+			_defend->SetHealth(_defend->GetHealth() - _attack->GetDamage() * 2); // Double damage
+		}
+
+		// Normal hit
+		else
+		{
+			_defend->SetHealth(_defend->GetHealth() - _attack->GetDamage());
+		}
+	}
+
+	else
+	{
+		std::cout << "Enemy is not in range\n";
+	}
+}
+
+// Perform all of the enemy moves
+void Level::EnemyTurn()
+{
+	// Move all the enemies
+	for (int i = 0; i < enemies.size(); i++)
+	{
+		enemies[i].Move();
+	}
+
+	turns++; // Next turn
+
+	// Allow all player units to move again
+	for (int i = 0; i < players.size(); i++)
+	{
+		players[i].can_move = true;
+	}
+}
+
+// Print info to screen
+void Level::Draw(sf::RenderWindow& _window)
+{
+	// Draw all level tiles
+	for (int i = 0; i < level_tiles.size(); i++)
+	{
+		// Draw all specific tile type
+		for (int j = 0; j < level_tiles[i].size(); j++)
+		{
+			_window.draw(*level_tiles[i][j]);
+		}
+	}
+
+	// Draw the CURRENT player's range tiles
+	for (int i = 0; i < players[current_player].range_tiles.size(); i++)
+	{
+		_window.draw(players[current_player].range_tiles[i]);
+	}
+
+	// Draw ALL the player units
+	for (int i = 0; i < players.size(); i++)
+	{
+		_window.draw(players[i].player_shape);
+	}
+
+	_window.draw(players[current_player].entity_text);
+
+	// Draw ALL the enemies
+	for (int i = 0; i < enemies.size(); i++)
+	{
+		_window.draw(enemies[i].enemy_shape);
+	}
+
+	_window.draw(enemies[current_enemy].entity_text);
 }

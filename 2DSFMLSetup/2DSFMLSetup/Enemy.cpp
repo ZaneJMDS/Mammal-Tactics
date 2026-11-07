@@ -6,6 +6,8 @@ Enemy::Enemy(sf::Vector2f _start_pos)
 	enemy_shape.setFillColor(sf::Color::Green);
 	start_pos = _start_pos;
 
+	entity_text.setPosition({ 800, 200 });
+
 	Reset();
 
 	srand(time(0)); 
@@ -23,44 +25,34 @@ void Enemy::Move()
 	float horizontal_movement[3] = { -64.f, 0, 64.f };
 	float vertical_movement[3] = { -64.f, 0, 64.f };
 
-	// Check not out of bounds
-	if (enemy_shape.getPosition().x + horizontal_movement[hor_input] < 550 && enemy_shape.getPosition().x + horizontal_movement[hor_input] > 40 && enemy_shape.getPosition().y + vertical_movement[ver_input] > 40 && enemy_shape.getPosition().y + vertical_movement[ver_input] < 550)
+	if (health > 0)
 	{
-		enemy_shape.move({ horizontal_movement[hor_input], vertical_movement[ver_input] });
-	}
+		// Check not out of bounds
+		if (enemy_shape.getPosition().x + horizontal_movement[hor_input] < 550 && enemy_shape.getPosition().x + horizontal_movement[hor_input] > 40 && enemy_shape.getPosition().y + vertical_movement[ver_input] > 40 && enemy_shape.getPosition().y + vertical_movement[ver_input] < 550)
+		{
+			enemy_shape.move({ horizontal_movement[hor_input], vertical_movement[ver_input] });
+		}
 
-	else
-	{
-		Move();
+		else
+		{
+			Move();
+		}
 	}
-
-	// Kill the enemy
-	if (health < 0)
-	{
-		std::cout << "I am dead";
-	}
-}
-
-void Enemy::Attack()
-{
 }
 
 void Enemy::Special()
 {
+	std::cout << "SPECIAL";
 }
 
 void Enemy::Animate()
 {
 }
 
+// Reset the enemy to default state
 void Enemy::Reset()
 {
 	enemy_shape.setPosition(start_pos);
+	health = max_health;
 	UnsetTarget(); // Reset level so player chooses a new target
-}
-
-// Display the enemies stats
-void Enemy::Display()
-{
-
 }

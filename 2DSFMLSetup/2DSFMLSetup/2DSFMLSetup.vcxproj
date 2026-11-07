@@ -137,6 +137,7 @@ sfml-window-d.lib
   <ItemGroup>
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="Entity.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -145,6 +146,7 @@ sfml-window-d.lib
   <ItemGroup>
     <ClInclude Include="Button.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="Entity.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="SaveManager.h" />

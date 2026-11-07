@@ -7,6 +7,8 @@ File name   :   Level.h
 
 #pragma once
 #include "Player.h"
+#include "Enemy.h"
+
 #include <fstream>
 
 class Level
@@ -24,6 +26,7 @@ public:
 	std::vector<std::vector<sf::RectangleShape*>> level_tiles; // Remember to add new tiles to LoadLevel
 
 	sf::Texture player_tex;
+	sf::Font entity_font;
 
 	std::vector<Enemy> enemies;
 	std::vector<Player> players;
@@ -33,9 +36,24 @@ public:
 
 	void LoadLevel();
 	void UnloadLevel();
-	void Reset(Player* _player);
+	void Reset();
+
+	void Click(sf::Vector2f _mouse_pos);
+	void Display();
+	void CollisionChecks();
+	
+	void Combat();
+	void Attack(Entity* _attack, Entity* _defend);
+	
+	void EnemyTurn(); // Perform all of the enemy moves
+	int GetTurn() { return turns; }
+
+	void Draw(sf::RenderWindow& _window);
 
 private:
 	std::string filepath;
+	int turns = 0;
+	int current_player = 0;
+	int current_enemy = 0;
 };
 

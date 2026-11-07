@@ -15,18 +15,24 @@ File name   :   Main.cpp
 int main()
 {
     // Window setup
-    sf::RenderWindow window(sf::VideoMode::getDesktopMode(), "Mammal Tactics", sf::State::Windowed); // GetDesktopMode resizes based on window size
+    sf::RenderWindow window(sf::VideoMode({ 1620, 720 }), "Mammal Tactics", sf::State::Windowed); // GetDesktopMode resizes based on window size
     sf::RenderWindow debug_window(sf::VideoMode({ 400, 400 }), "Debug Window");
     
+    // sf::ideoMode::getDesktopMode()
     // sf::VideoMode::getFullscreenMode();
 
     window.setFramerateLimit(60);
     window.setMinimumSize(sf::Vector2u{ 400, 400 }); // Can't decrease furthur than this
 
     // Level setup
-    Level Level1("Levels/Level1.txt");
-    Level1.LoadLevel();
-    int current_enemy = 0;
+    Level level1("Levels/Level1.txt");
+    Level level2("Levels/Level2.txt");
+    Level level3("Levels/Level3.txt");
+    const int max_levels = 3;
+    Level levels[max_levels] = { level1, level2, level3 };
+    
+    int current_level = 0;
+    levels[current_level].LoadLevel();
 
     // Saves setup
     SaveManager Save1;
@@ -51,12 +57,13 @@ int main()
     const int text_size = 32;
     sf::Text TitleText(Font1, "Mammal Tactics", text_size);
     sf::Text Credits(Font1, "Credits: \nGame by Zane\nMammal by Ryan", text_size);
+    sf::Text TotalTurns(Font1, "Total turns: ", text_size);
     bool credits_visible = false;
 
     // Button setup
     std::vector<Button> buttons;
 
-    // Create text for the buttons
+    // Menu buttons
     sf::Text PlayText(Font1, "Play", text_size);
     sf::Text CreditText(Font1, "Credit", text_size);
     sf::Text QuitText(Font1, "Quit", text_size);
@@ -64,8 +71,13 @@ int main()
     sf::Text DecVolText(Font1, "Decrease", text_size);
     sf::Text IncVolText(Font1, "Increase", text_size);
 
+    sf::Text PassTurnText(Font1, "Pass turn", text_size); // Gameplay button
+
     const int button_count = 6;
     sf::Text button_roles[button_count] = { PlayText, CreditText, QuitText, VsyncText, DecVolText, IncVolText };
+
+    // Other Text
+    sf::Text TurnText(Font1, "Turns: ", text_size);
 
     // Create every menu button
     for (int i = 0; i < button_count; i++)
@@ -105,7 +117,7 @@ int main()
                 if (!game_start)
                 {
                     // Did user click on a button
-                    for (int i = 0; i < button_count; i++)
+                    for (int i = 0; i < buttons.size(); i++)
                     {
                         // Menu
                         if (buttons[i].m_ButtonShape.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window))))
@@ -146,7 +158,7 @@ int main()
                             }
 
                             // Decrease music vol
-                            if (i == 4)
+                            if (i == 5)
                             {
 
                             }
@@ -157,30 +169,10 @@ int main()
                 // Game has started
                 else
                 {
-                    for (int i = 0; i < Level1.enemies.size(); i++)
-                    {
-                        // Did user click on an enemy
-                        if (Level1.enemies[i].enemy_shape.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window))))
-                        {
-                            // Change enemy target
-                            Level1.enemies[current_enemy].UnsetTarget();
-                            current_enemy = i;
-                        }
-                    }
-
-                    // Did user click on an empty tile
-                    for (int i = 0; i < Level1.level_back_tiles.size(); i++)
-                    {
-                        if (Level1.level_back_tiles[i]->getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window))))
-                        {
-                            // Move the player
-                            Level1.players[0].MoveTo(sf::Vector2f(sf::Mouse::getPosition(window)));
-                        }
-                    }
+                    sf::Vector2f mouse_pos = sf::Vector2f(sf::Mouse::getPosition(window));
+                    levels[current_level].Click(mouse_pos);
                 }
             }
-
-            Level1.enemies[current_enemy].SetTarget();
 
             // Keybinds for the player
             if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
@@ -202,7 +194,7 @@ int main()
                 // Manual attack button
                 if (keyPressed->code == sf::Keyboard::Key::Space)
                 {
-                    Level1.players[0].Attack(&Level1.enemies[current_enemy]);
+                    levels[current_level].Combat();
                 }
 
                 // Increase resolution
@@ -223,72 +215,54 @@ int main()
                     game_start = !game_start;
                 }
 
-                // Player Movement
-                Level1.players[0].Move(&Level1.enemies[current_enemy]);
-
-                // TODO Move outside of keypressed to go with new mouse move input 
-                int k = 0;
-                // Check for collisions between player range tiles
-                for (int i = 0; i < 9; i++)
+                // Pass turn
+                if (keyPressed->code == sf::Keyboard::Key::P)
                 {
-                    // AND Wall tiles
-                    for (int j = 0; j < Level1.wall_tiles.size(); j++)
-                    {
-                        // This tile is colliding with this wall
-                        if (Level1.players[0].range_tiles[i].getGlobalBounds().findIntersection(Level1.wall_tiles[j]->getGlobalBounds()))
-                        {
-                            Level1.players[0].range_tiles[i].setFillColor(sf::Color(0, 0, 0, 0));
-                        }
-
-                        // This tile isn't colliding with any wall
-                        else if (k+1 == Level1.wall_tiles.size())
-                        {
-                            Level1.players[0].range_tiles[i].setFillColor(sf::Color(0, 0, 255, 128)); // Light Blue
-                        }
-
-                        // Not colliding with this wall
-                        else
-                        {
-                            k++;
-                        }
-                    }
-                    k = 0;
+                    levels[current_level].EnemyTurn();
                 }
-
-                // Wall tiles
-                for (int i = 0; i < Level1.wall_tiles.size(); i++)
-                {
-                    // With player
-                    if (Level1.players[0].player_shape.getGlobalBounds().findIntersection(Level1.wall_tiles[i]->getGlobalBounds()))
-                    {
-                        Level1.players[0].player_shape.move({ -64, 0 });
-                    }
-                }
-
-                // Player special
-                Level1.players[0].Special(&Level1.enemies[current_enemy]);
 
                 // Check to see if any enemies have health, if not proceed to next level
                 int enemies_dead = 0;
-                for (int i = 0; i < Level1.enemies.size(); i++)
+                for (int i = 0; i < levels[current_level].enemies.size(); i++)
                 {
-                    if (Level1.enemies[i].GetHealth() <= 0)
+                    if (levels[current_level].enemies[i].GetHealth() <= 0)
                     {
                         enemies_dead++;
                     }
 
-                    // All enemies killed
-                    if (enemies_dead == Level1.enemies.size())
+                    // All enemies killed, move to next level
+                    if (enemies_dead == levels[current_level].enemies.size())
                     {
-                        std::cout << "You win, load next level";
+                        levels[current_level].UnloadLevel();
+
+                        // Move to next level
+                        if (current_level < max_levels - 1)
+                        {
+                            current_level++;
+                            levels[current_level].LoadLevel();
+                        }
+
+                        // Return to menu
+                        else
+                        {
+                            game_start = false;
+                            std::string turns_string = "Max turns:\n";
+
+                            // Display scores to the user
+                            for (int i = 0; i < max_levels; i++)
+                            {
+                                turns_string += "Level " + std::to_string(i + 1) + ": " + std::to_string(levels[i].GetTurn()) + "\n";
+                            }
+
+                            TotalTurns.setString(turns_string);
+                        }
                     }
                 }
             }
         }
 
-        // Animation events
-        Level1.players[0].Animate();
-        Level1.players[0].Display();
+        levels[current_level].CollisionChecks();
+        levels[current_level].Display();
 
         // Window events
         window.clear();
@@ -308,6 +282,8 @@ int main()
                     window.draw(buttons[i].m_ButtonShape);
                     window.draw(buttons[i].text);
                 }
+
+                window.draw(TotalTurns);
             }
 
             // Draw credits
@@ -322,36 +298,18 @@ int main()
         {
             window.draw(background_shape);
 
-            // Draw all level tiles
-            for (int i = 0; i < Level1.level_tiles.size(); i++)
-            {
-                // Draw all specific tile type
-                for (int j = 0; j < Level1.level_tiles[i].size(); j++)
-                {
-                    window.draw(*Level1.level_tiles[i][j]);
-                }
-            }
+            TurnText.setPosition({});
+            TurnText.setString("Turns: " + levels[current_level].GetTurn());
+            window.draw(TurnText);
 
-            // Draw the player and their range tiles
-            for (int i = 0; i < Level1.players[0].range_tiles.size(); i++)
-            {
-                window.draw(Level1.players[0].range_tiles[i]);
-            }
-            window.draw(Level1.players[0].player_shape); 
-            window.draw(Level1.players[0].PlayerText); // Might have to store this in the level file
-
-            // Draw all the enemies
-            for (int i = 0; i < Level1.enemies.size(); i++)
-            {
-                window.draw(Level1.enemies[i].enemy_shape);
-            }
+            levels[current_level].Draw(window);
         }
 
         window.display();
 
         // Debug window events
         debug_window.clear();
-        debug_window.setVisible(false);
+        debug_window.setVisible(false); // For now
         debug_window.display();
     }
 }

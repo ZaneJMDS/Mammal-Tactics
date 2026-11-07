@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Debug\\Entity.obj",
+            "outputs": [
+                "Debug\\Entity.cpp.obj.dt.module.json",
+                "Debug\\Entity.cpp.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}
