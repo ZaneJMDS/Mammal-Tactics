@@ -4,7 +4,7 @@ Player::Player(sf::Vector2f _start_pos)
 {
 	start_pos = _start_pos;
 
-	player_shape.setSize({32.f, 32.f});
+	player_shape.setSize({64.f, 64.f});
 	entity_text.setPosition({ 800, 0 });
 
 	// Location and size
@@ -146,14 +146,6 @@ void Player::MoveTo(sf::Vector2f _move_pos)
 	}
 }
 
-// Player has selected an enemy and attacks them
-void Player::Attack()
-{
-	// Debug range
-	// std::cout << "Range difference x: " << abs(_Enemy->enemy_shape.getPosition().x - player_shape.getPosition().x) << "\n";
-	// std::cout << "Range difference y: " << abs(_Enemy->enemy_shape.getPosition().y - player_shape.getPosition().y) << "\n";
-}
-
 // Could do area damage, heal, or buff
 void Player::Special()
 {
@@ -207,5 +199,6 @@ void Player::Reset()
 {
 	player_shape.setPosition(start_pos);
 	can_move = true;
+	can_attack = true;
 	health = max_health;
 }

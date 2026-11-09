@@ -23,7 +23,6 @@ public:
 	// Actions the player can take on their turn
 	void Move();
 	void MoveTo(sf::Vector2f _move_pos);
-	void Attack();
 	void Special();
 
 	// Indicators for if the user has this enemy selected
@@ -35,7 +34,9 @@ public:
 
 	sf::RectangleShape GetShape() override { return player_shape; }
 
-	bool can_move = true; // Player always gets the first turn
+	// Player always gets the first turn
+	bool can_move = true;
+	bool can_attack = true;
 
 private:
 	// Stats

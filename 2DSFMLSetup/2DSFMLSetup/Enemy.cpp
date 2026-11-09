@@ -2,7 +2,7 @@
 
 Enemy::Enemy(sf::Vector2f _start_pos)
 {
-	enemy_shape.setSize({ 32.f, 32.f });
+	enemy_shape.setSize({ 64.f, 64.f });
 	enemy_shape.setFillColor(sf::Color::Green);
 	start_pos = _start_pos;
 
@@ -24,6 +24,12 @@ void Enemy::Move()
 	int ver_input = rand() % 3;
 	float horizontal_movement[3] = { -64.f, 0, 64.f };
 	float vertical_movement[3] = { -64.f, 0, 64.f };
+
+	// Need to move
+	if (hor_input == 1 && ver_input == 1)
+	{
+		Move();
+	}
 
 	if (health > 0)
 	{

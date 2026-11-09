@@ -159,29 +159,13 @@ void Level::Click(sf::Vector2f _mouse_pos)
 		}
 	}
 
-	// YIKES!!!
 	for (int i = 0; i < level_back_tiles.size(); i++)
 	{
-		for (int j = 0; j < players.size(); j++)
+		// Did user click on an empty tile
+		if (level_back_tiles[i]->getGlobalBounds().contains(_mouse_pos))
 		{
-			for (int k = 0; k < enemies.size(); k++)
-			{
-				// Not returning false
-				if (players[j].player_shape.getGlobalBounds().contains(_mouse_pos) || enemies[k].enemy_shape.getGlobalBounds().contains(_mouse_pos))
-				{
-
-				}
-
-				else
-				{
-					// Did user click on an empty tile
-					if (level_back_tiles[i]->getGlobalBounds().contains(_mouse_pos))
-					{
-						// Move the selected player
-						players[current_player].MoveTo(_mouse_pos);
-					}
-				}
-			}
+			// Move the selected player
+			players[current_player].MoveTo(_mouse_pos);
 		}
 	}
 
@@ -194,7 +178,7 @@ void Level::Display()
 {
 	// Player events
 	players[current_player].Animate();
-	players[current_player].Display();
+	players[current_player].Display(); // Communicate the top is player
 
 	// Enemy events
 	enemies[current_enemy].Animate();
@@ -255,7 +239,11 @@ void Level::CollisionChecks()
 // Selected player attacks selected enemy and vice versa
 void Level::Combat()
 {
-	Attack(&players[current_player], &enemies[current_enemy]);
+	if (players[current_player].can_attack)
+	{
+		Attack(&players[current_player], &enemies[current_enemy]);
+	}
+
 
 	Attack(&enemies[current_enemy], &players[current_player]);
 }
@@ -290,11 +278,15 @@ void Level::Attack(Entity* _attack, Entity* _defend)
 // Perform all of the enemy moves
 void Level::EnemyTurn()
 {
+	Attack(&enemies[current_enemy], &players[current_player]); // If in range, attack first
+
 	// Move all the enemies
 	for (int i = 0; i < enemies.size(); i++)
 	{
 		enemies[i].Move();
 	}
+
+	Attack(&enemies[current_enemy], &players[current_player]); // Attack now, if now in range
 
 	turns++; // Next turn
 

@@ -18,7 +18,7 @@ int main()
     sf::RenderWindow window(sf::VideoMode({ 1620, 720 }), "Mammal Tactics", sf::State::Windowed); // GetDesktopMode resizes based on window size
     sf::RenderWindow debug_window(sf::VideoMode({ 400, 400 }), "Debug Window");
     
-    // sf::ideoMode::getDesktopMode()
+    // sf::VideoMode::getDesktopMode()
     // sf::VideoMode::getFullscreenMode();
 
     window.setFramerateLimit(60);
@@ -48,11 +48,7 @@ int main()
     window.setVerticalSyncEnabled(Vsync);
 
     // Text setup
-    sf::Font Font1;
-    if (!Font1.openFromFile("Cinzel-Bold.ttf"))
-    {
-        throw "Font could not be loaded";
-    }
+    sf::Font Font1("Cinzel-Bold.ttf");
 
     const int text_size = 32;
     sf::Text TitleText(Font1, "Mammal Tactics", text_size);
@@ -298,8 +294,9 @@ int main()
         {
             window.draw(background_shape);
 
-            TurnText.setPosition({});
-            TurnText.setString("Turns: " + levels[current_level].GetTurn());
+            // Draw the current turn
+            TurnText.setPosition({1000, 0});
+            TurnText.setString("Turns: " + std::to_string(levels[current_level].GetTurn()));
             window.draw(TurnText);
 
             levels[current_level].Draw(window);
