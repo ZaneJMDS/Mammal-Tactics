@@ -1,7 +1,8 @@
 #include "Entity.h"
 
-Entity::Entity() : entity_text(no_font, "NOT SET", 16)
+Entity::Entity(sf::Vector2f _start_pos) : entity_text(no_font, "NOT SET", 16)
 {
+	start_pos = _start_pos;
 }
 
 Entity::~Entity()
@@ -17,6 +18,14 @@ void Entity::Display()
 		"\nDamage: " + std::to_string(damage) +
 		"\nRange: " + std::to_string((int)range / 64) + " tiles" +
 		"\nCrit Chance: " + std::to_string(crit_chance) + "%"
-		// "\nCan move: " + std::to_string(can_move)
 	);
+}
+
+void Entity::Reset()
+{
+	GetShape().setPosition(start_pos);
+	// can_move = true;
+	can_attack = true;
+	health = max_health;
+	UnsetTarget();
 }

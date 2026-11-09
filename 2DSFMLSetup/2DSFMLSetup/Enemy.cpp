@@ -60,5 +60,6 @@ void Enemy::Reset()
 {
 	enemy_shape.setPosition(start_pos);
 	health = max_health;
+	can_attack = true;
 	UnsetTarget(); // Reset level so player chooses a new target
 }

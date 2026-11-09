@@ -239,54 +239,60 @@ void Level::CollisionChecks()
 // Selected player attacks selected enemy and vice versa
 void Level::Combat()
 {
-	if (players[current_player].can_attack)
-	{
-		Attack(&players[current_player], &enemies[current_enemy]);
-	}
-
-
-	Attack(&enemies[current_enemy], &players[current_player]);
+	Attack(&players[current_player], &enemies[current_enemy]);
 }
 
 // First is attacker and second is blocker
 void Level::Attack(Entity* _attack, Entity* _defend)
 {
-	// Check the target is within range
-	if (abs(_defend->GetShape().getPosition().x - _attack->GetShape().getPosition().x < _attack->GetRange() && _defend->GetShape().getPosition().y - _attack->GetShape().getPosition().y < _attack->GetRange()))
+	if (_attack->can_attack)
 	{
-		int crit_hit = rand() % 100;
-
-		// Critical hit
-		if (crit_hit > _attack->GetCritChance())
+		// Check the target is within range
+		if (abs(_defend->GetShape().getPosition().x - _attack->GetShape().getPosition().x < _attack->GetRange() && _defend->GetShape().getPosition().y - _attack->GetShape().getPosition().y < _attack->GetRange()))
 		{
-			_defend->SetHealth(_defend->GetHealth() - _attack->GetDamage() * 2); // Double damage
+
+			int crit_hit = rand() % 100;
+
+			// Critical hit
+			if (crit_hit > _attack->GetCritChance())
+			{
+				_defend->SetHealth(_defend->GetHealth() - _attack->GetDamage() * 2); // Double damage
+			}
+
+			// Normal hit
+			else
+			{
+				_defend->SetHealth(_defend->GetHealth() - _attack->GetDamage());
+			}
+
+			_attack->can_attack = false;
+
+			std::cout << "Selected attacks\n";
 		}
 
-		// Normal hit
 		else
 		{
-			_defend->SetHealth(_defend->GetHealth() - _attack->GetDamage());
+			std::cout << "Target is not in range\n";
 		}
 	}
 
 	else
 	{
-		std::cout << "Enemy is not in range\n";
+		std::cout << "Selected has already attacked\n";
 	}
 }
 
-// Perform all of the enemy moves
+// Perform all of the enemy moves and give the player back their turn
 void Level::EnemyTurn()
 {
-	Attack(&enemies[current_enemy], &players[current_player]); // If in range, attack first
-
-	// Move all the enemies
+	// Every enemy performs an action
 	for (int i = 0; i < enemies.size(); i++)
 	{
+		Attack(&enemies[i], &players[current_player]); // If in range, attack first
 		enemies[i].Move();
+		Attack(&enemies[i], &players[current_player]); // Attack now, if now in range
+		enemies[i].can_attack = true;
 	}
-
-	Attack(&enemies[current_enemy], &players[current_player]); // Attack now, if now in range
 
 	turns++; // Next turn
 
@@ -294,6 +300,7 @@ void Level::EnemyTurn()
 	for (int i = 0; i < players.size(); i++)
 	{
 		players[i].can_move = true;
+		players[i].can_attack = true;
 	}
 }
 

@@ -19,16 +19,12 @@ public:
 	void Special();
 
 	// Indicators for if the user has this enemy selected
-	void SetTarget() { enemy_shape.setFillColor(sf::Color::Blue); }
-	void UnsetTarget() { enemy_shape.setFillColor(sf::Color::Green); }
+	void SetTarget() override { enemy_shape.setFillColor(sf::Color::Blue); }
+	void UnsetTarget() override { enemy_shape.setFillColor(sf::Color::Green); }
 
 	void Animate();
 	void Reset();
 
 	sf::RectangleShape GetShape() override { return enemy_shape; }
-
-private:
-	sf::Vector2f start_pos;
-	const int max_health = 10;
 };
 

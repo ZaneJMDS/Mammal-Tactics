@@ -201,4 +201,5 @@ void Player::Reset()
 	can_move = true;
 	can_attack = true;
 	health = max_health;
+	UnsetTarget();
 }

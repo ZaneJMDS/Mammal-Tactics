@@ -11,7 +11,10 @@ public:
 	Entity();
 	~Entity();
 
+	virtual void SetTarget() = 0;
+	virtual void UnsetTarget() = 0;
 	void Display();
+	void Reset();
 
 	int GetHealth() { return health; }
 	void SetHealth(int _health) { health = _health; }
@@ -20,10 +23,14 @@ public:
 	int GetCritChance() { return crit_chance; }
 	virtual sf::RectangleShape GetShape() = 0;
 
+	bool can_attack = true;
+
 protected:
 	int health = 0;
 	int damage = 3;
 	float range = 64.f + 1.f; // Each tile is 64 by 64px
 	int crit_chance = 50;
+	int max_health = 20;
+	sf::Vector2f start_pos;
 };
 
