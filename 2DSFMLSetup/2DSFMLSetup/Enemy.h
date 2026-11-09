@@ -11,7 +11,7 @@ public:
 	// Texture stored in level file
 	sf::RectangleShape enemy_shape;
 
-	Enemy(sf::Vector2f _start_pos);
+	Enemy(sf::Vector2f _start_pos, EntityTypes _entity_type);
 	~Enemy();
 
 	// Actions the enemy can take on their turn
@@ -23,7 +23,6 @@ public:
 	void UnsetTarget() override { enemy_shape.setFillColor(sf::Color::Green); }
 
 	void Animate();
-	void Reset();
 
 	sf::RectangleShape GetShape() override { return enemy_shape; }
 };

@@ -1,6 +1,20 @@
+/***********************************************************************
+Author      :	Zane Jackson
+Mail        :   Zane.Jackson@mds.ac.nz
+Description :	Class for managing all entities
+File name   :   Entity.h
+**************************************************************************/
+
 #pragma once
 #include <string>
 #include <SFML/Graphics.hpp>
+#include <iostream>
+
+enum EntityTypes
+{
+	melee,
+	ranged,
+};
 
 class Entity
 {
@@ -13,9 +27,13 @@ public:
 
 	virtual void SetTarget() = 0;
 	virtual void UnsetTarget() = 0;
+
+	void SetStats();
+
 	void Display();
 	void Reset();
 
+	// Get methods
 	int GetHealth() { return health; }
 	void SetHealth(int _health) { health = _health; }
 	int GetDamage() { return damage; }
@@ -24,13 +42,15 @@ public:
 	virtual sf::RectangleShape GetShape() = 0;
 
 	bool can_attack = true;
+	bool can_move = true;
 
 protected:
-	int health = 0;
+	int health = 1;
 	int damage = 3;
-	float range = 64.f + 1.f; // Each tile is 64 by 64px
+	float range = 65.f; // Each tile is 64 by 64px
 	int crit_chance = 50;
 	int max_health = 20;
-	sf::Vector2f start_pos;
+	sf::Vector2f start_pos = {100.f, 100.f};
+	EntityTypes entity_type;
 };
 

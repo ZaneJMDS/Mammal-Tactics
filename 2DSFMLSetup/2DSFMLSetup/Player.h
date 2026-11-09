@@ -21,7 +21,7 @@ public:
 	sf::RectangleShape attack_icon;
 	sf::RectangleShape special_icon;
 
-	Player(sf::Vector2f _start_pos);
+	Player(sf::Vector2f _start_pos, EntityTypes _entity_type);
 	~Player();
 
 	// Actions the player can take on their turn
@@ -33,16 +33,9 @@ public:
 	void SetTarget() override { player_shape.setFillColor(sf::Color::Blue); }
 	void UnsetTarget() override { player_shape.setFillColor(sf::Color::Green); }
 
-	// Player icons
-	void Display() {}
-
 	void Animate();
-	void Reset();
 
 	sf::RectangleShape GetShape() override { return player_shape; }
-
-	// Player always gets the first turn
-	bool can_move = true;
 
 private:
 	sf::Clock animation_clock;

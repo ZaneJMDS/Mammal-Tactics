@@ -1,10 +1,14 @@
 #include "Enemy.h"
 
-Enemy::Enemy(sf::Vector2f _start_pos)
+Enemy::Enemy(sf::Vector2f _start_pos, EntityTypes _entity_type)
 {
 	enemy_shape.setSize({ 64.f, 64.f });
 	enemy_shape.setFillColor(sf::Color::Green);
+	
 	start_pos = _start_pos;
+	entity_type = _entity_type;
+
+	SetStats();
 
 	entity_text.setPosition({ 800, 200 });
 
@@ -25,7 +29,7 @@ void Enemy::Move()
 	float horizontal_movement[3] = { -64.f, 0, 64.f };
 	float vertical_movement[3] = { -64.f, 0, 64.f };
 
-	// Need to move
+	// Can't be center
 	if (hor_input == 1 && ver_input == 1)
 	{
 		Move();
@@ -53,13 +57,4 @@ void Enemy::Special()
 
 void Enemy::Animate()
 {
-}
-
-// Reset the enemy to default state
-void Enemy::Reset()
-{
-	enemy_shape.setPosition(start_pos);
-	health = max_health;
-	can_attack = true;
-	UnsetTarget(); // Reset level so player chooses a new target
 }

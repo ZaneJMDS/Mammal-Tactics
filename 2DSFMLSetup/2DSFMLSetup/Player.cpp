@@ -1,10 +1,22 @@
 #include "Player.h"
 
-Player::Player(sf::Vector2f _start_pos)
+Player::Player(sf::Vector2f _start_pos, EntityTypes _entity_type)
 {
 	start_pos = _start_pos;
+	entity_type = _entity_type;
+
+	// y = (2x + 1)^2
+	// Y is the number of tiles to be calculated and x is the range value
 
 	player_shape.setSize({64.f, 64.f});
+
+	SetStats();
+
+	// Icon text location
+	attack_icon.setSize({ 64.f, 64.f });
+	move_icon.setSize({ 64.f, 64.f });
+	special_icon.setSize({ 64.f, 64.f });
+
 	entity_text.setPosition({ 800, 0 });
 
 	// Location and size
@@ -109,6 +121,7 @@ void Player::Move()
 	}
 }
 
+// Move to the mouse position
 void Player::MoveTo(sf::Vector2f _move_pos)
 {
 	sf::Vector2f move_pos;
@@ -153,12 +166,6 @@ void Player::Special()
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num1))
 	{
 		std::cout << "Area attack";
-
-		// Check the enemy is in range
-		/*if (abs(_Enemy->enemy_shape.getPosition().x - player_shape.getPosition().x) < range && abs(_Enemy->enemy_shape.getPosition().y - player_shape.getPosition().y) < range)
-		{
-			_Enemy->SetHealth(_Enemy->GetHealth() - damage);
-		}*/
 	}
 
 	// Heal
@@ -192,14 +199,4 @@ void Player::Animate()
 	else if (current_time < 1.5f) { player_shape.setTextureRect(sf::IntRect({ 64, 0 }, { 32, 32 })); }
 	else if (current_time < 2.f) { player_shape.setTextureRect(sf::IntRect({ 96, 0 }, { 32, 32 })); }
 	else { animation_clock.restart(); }
-}
-
-// Bring player back to the starting square when they die
-void Player::Reset()
-{
-	player_shape.setPosition(start_pos);
-	can_move = true;
-	can_attack = true;
-	health = max_health;
-	UnsetTarget();
 }

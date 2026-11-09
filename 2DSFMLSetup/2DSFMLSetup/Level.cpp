@@ -70,20 +70,33 @@ void Level::LoadLevel()
 			}
 
 			// Entities
-			// Default Enemy
+			// Melee Enemy
 			if (level_array[x][y] == 'e')
 			{
 				sf::Vector2f start_pos(x * 64, y * 64);
-				Enemy NewEnemy(start_pos);
+				Enemy NewEnemy(start_pos, melee);
 				NewEnemy.entity_text.setFont(entity_font);
 				enemies.push_back(NewEnemy);
 			}
 
-			// Player
-			if (level_array[x][y] == 'p')
+			// Melee Player
+			if (level_array[x][y] == 'm')
 			{
 				sf::Vector2f start_pos(x * 64, y * 64);
-				Player NewPlayer(start_pos);
+				Player NewPlayer(start_pos, melee);
+
+				// Why do I have to hold these here?
+				NewPlayer.player_shape.setTexture(&player_tex);
+				NewPlayer.entity_text.setFont(entity_font);
+
+				players.push_back(NewPlayer);
+			}
+
+			// Ranged Player
+			if (level_array[x][y] == 'r')
+			{
+				sf::Vector2f start_pos(x * 64, y * 64);
+				Player NewPlayer(start_pos, ranged);
 
 				// Why do I have to hold these here?
 				NewPlayer.player_shape.setTexture(&player_tex);
@@ -132,6 +145,8 @@ void Level::Reset()
 	{
 		enemies[i].Reset();
 	}
+
+	turns = 0;
 }
 
 // Check info or move the player
@@ -248,7 +263,7 @@ void Level::Attack(Entity* _attack, Entity* _defend)
 	if (_attack->can_attack)
 	{
 		// Check the target is within range
-		if (abs(_defend->GetShape().getPosition().x - _attack->GetShape().getPosition().x < _attack->GetRange() && _defend->GetShape().getPosition().y - _attack->GetShape().getPosition().y < _attack->GetRange()))
+		if (abs(_defend->GetShape().getPosition().x - _attack->GetShape().getPosition().x) < _attack->GetRange() && abs(_defend->GetShape().getPosition().y - _attack->GetShape().getPosition().y) < _attack->GetRange())
 		{
 
 			int crit_hit = rand() % 100;
@@ -288,9 +303,13 @@ void Level::EnemyTurn()
 	// Every enemy performs an action
 	for (int i = 0; i < enemies.size(); i++)
 	{
-		Attack(&enemies[i], &players[current_player]); // If in range, attack first
-		enemies[i].Move();
-		Attack(&enemies[i], &players[current_player]); // Attack now, if now in range
+		// Check all players in range
+		for (int j = 0; j < players.size(); j++)
+		{
+			Attack(&enemies[i], &players[j]); // If in range, attack first
+			enemies[i].Move();
+			Attack(&enemies[i], &players[j]); // Attack now, if now in range
+		}
 		enemies[i].can_attack = true;
 	}
 

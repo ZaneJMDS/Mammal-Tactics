@@ -1,12 +1,31 @@
 #include "Entity.h"
 
-Entity::Entity(sf::Vector2f _start_pos) : entity_text(no_font, "NOT SET", 16)
+Entity::Entity() : entity_text(no_font, "NOT SET", 16)
 {
-	start_pos = _start_pos;
 }
 
 Entity::~Entity()
 {
+}
+
+// Combat roles here
+void Entity::SetStats()
+{
+	switch (entity_type)
+	{
+	case melee:
+		damage = 10;
+		range = 65.f;
+		break;
+
+	case ranged:
+		damage = 5;
+		range = 130.f;
+		break;
+
+	default:
+		break;
+	}
 }
 
 // Communicate the stats to the user
@@ -24,8 +43,8 @@ void Entity::Display()
 void Entity::Reset()
 {
 	GetShape().setPosition(start_pos);
-	// can_move = true;
-	can_attack = true;
 	health = max_health;
+	can_attack = true;
+	can_move = true;
 	UnsetTarget();
 }
