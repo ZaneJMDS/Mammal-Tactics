@@ -25,7 +25,6 @@ public:
 	~Player();
 
 	// Actions the player can take on their turn
-	void Move();
 	void MoveTo(sf::Vector2f _move_pos);
 	void Special();
 
@@ -33,9 +32,10 @@ public:
 	void SetTarget() override { player_shape.setFillColor(sf::Color::Blue); }
 	void UnsetTarget() override { player_shape.setFillColor(sf::Color::Green); }
 
+	void UpdateIcons();
 	void Animate();
 
-	sf::RectangleShape GetShape() override { return player_shape; }
+	sf::RectangleShape* GetShape() override { return &player_shape; }
 
 private:
 	sf::Clock animation_clock;

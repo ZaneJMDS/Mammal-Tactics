@@ -67,7 +67,11 @@ int main()
     sf::Text DecVolText(Font1, "Decrease", text_size);
     sf::Text IncVolText(Font1, "Increase", text_size);
 
+    // Gameplay buttons
     sf::Text PassTurnText(Font1, "Pass turn", text_size); // Gameplay button
+
+    // Debug buttons
+    sf::Text InfiniteTurnText(Font1, "Infinite turn: Off", text_size);
 
     const int button_count = 6;
     sf::Text button_roles[button_count] = { PlayText, CreditText, QuitText, VsyncText, DecVolText, IncVolText };
@@ -257,8 +261,29 @@ int main()
             }
         }
 
-        levels[current_level].CollisionChecks();
-        levels[current_level].Display();
+        // Debug window events
+        while (const std::optional event = window.pollEvent())
+        {
+            // Catch the resize events
+            if (const auto* resized = event->getIf<sf::Event::Resized>())
+            {
+                // update the view to the new size of the window
+                sf::FloatRect visibleArea({ 0.f, 0.f }, sf::Vector2f(resized->size));
+                debug_window.setView(sf::View(visibleArea));
+            }
+
+            // Keybinds for the player
+            if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
+            {
+                // Infinite turns toggle
+                if (keyPressed->code == sf::Keyboard::Key::I)
+                {
+                    levels[current_level].infinite_turn = !levels[current_level].infinite_turn;
+                }
+            }
+        }
+
+        levels[current_level].Update();
 
         // Window events
         window.clear();
@@ -306,7 +331,8 @@ int main()
 
         // Debug window events
         debug_window.clear();
-        debug_window.setVisible(false); // For now
+        InfiniteTurnText.setString("Infinite turns: " + levels[current_level].infinite_turn);
+        debug_window.draw(InfiniteTurnText);
         debug_window.display();
     }
 }

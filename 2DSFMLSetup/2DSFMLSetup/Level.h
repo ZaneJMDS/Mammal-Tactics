@@ -20,11 +20,13 @@ public:
 
 	char level_array[level_width][level_height]; // Array holding level tiles
 
+	// Static blocks
 	std::vector<sf::RectangleShape*> level_back_tiles;
 	std::vector<sf::RectangleShape*> wall_tiles;
 
 	std::vector<std::vector<sf::RectangleShape*>> level_tiles; // Remember to add new tiles to LoadLevel
 
+	// Entities
 	sf::Texture player_tex;
 	sf::Font entity_font;
 
@@ -45,10 +47,14 @@ public:
 	void Combat();
 	void Attack(Entity* _attack, Entity* _defend);
 	
-	void EnemyTurn(); // Perform all of the enemy moves
+	void PassTurn();
+	void EnemyTurn();
 	int GetTurn() { return turns; }
 
+	void Update();
 	void Draw(sf::RenderWindow& _window);
+
+	bool infinite_turn = false;
 
 private:
 	std::string filepath;

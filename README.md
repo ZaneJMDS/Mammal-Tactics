@@ -8,9 +8,15 @@ Controls:
 
 Click a player unit to have them selected.
 
+Click a enemy unit to have them selected.
+
 Click a blank tile to move them there. (If the selected player unit is within range)
 
-Click a enemy unit to attack them. (If the selected player unit is within range)
+
+
+Press <p> or pass turn to give turn to the enemy. (Turn will automatically pass if you have no moves left)
+
+Press <space> to have target player attack target enemy if they are within range.
 
 
 
@@ -25,6 +31,5 @@ features:
 * Enemies with random movement
 * Multiple levels
 * File save and load
-
-
+* Unit classes like melee and ranged
 

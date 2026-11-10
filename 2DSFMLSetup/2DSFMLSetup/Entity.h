@@ -14,6 +14,7 @@ enum EntityTypes
 {
 	melee,
 	ranged,
+	tank,
 };
 
 class Entity
@@ -37,9 +38,9 @@ public:
 	int GetHealth() { return health; }
 	void SetHealth(int _health) { health = _health; }
 	int GetDamage() { return damage; }
-	float GetRange() { return range; }
+	int GetRange() { return range; }
 	int GetCritChance() { return crit_chance; }
-	virtual sf::RectangleShape GetShape() = 0;
+	virtual sf::RectangleShape* GetShape() = 0;
 
 	bool can_attack = true;
 	bool can_move = true;
@@ -47,7 +48,7 @@ public:
 protected:
 	int health = 1;
 	int damage = 3;
-	float range = 65.f; // Each tile is 64 by 64px
+	int range = 1; // Each tile is 64 by 64px
 	int crit_chance = 50;
 	int max_health = 20;
 	sf::Vector2f start_pos = {100.f, 100.f};

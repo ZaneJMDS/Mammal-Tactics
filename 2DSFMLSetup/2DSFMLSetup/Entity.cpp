@@ -15,12 +15,23 @@ void Entity::SetStats()
 	{
 	case melee:
 		damage = 10;
-		range = 65.f;
+		range = 1;
+		max_health = 150;
+		crit_chance = 75;
 		break;
 
 	case ranged:
 		damage = 5;
-		range = 130.f;
+		range = 2;
+		max_health = 100;
+		crit_chance = 50;
+		break;
+
+	case tank:
+		damage = 5;
+		range = 1;
+		max_health = 300;
+		crit_chance = 25;
 		break;
 
 	default:
@@ -35,14 +46,15 @@ void Entity::Display()
 		"Stats: "
 		"\nHealth: " + std::to_string(health) +
 		"\nDamage: " + std::to_string(damage) +
-		"\nRange: " + std::to_string((int)range / 64) + " tiles" +
+		"\nRange: " + std::to_string(range) + " tiles" +
 		"\nCrit Chance: " + std::to_string(crit_chance) + "%"
 	);
 }
 
+// Reset all enititys back to their default state and position
 void Entity::Reset()
 {
-	GetShape().setPosition(start_pos);
+	GetShape()->setPosition(start_pos);
 	health = max_health;
 	can_attack = true;
 	can_move = true;

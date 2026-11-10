@@ -104,6 +104,19 @@ void Level::LoadLevel()
 
 				players.push_back(NewPlayer);
 			}
+
+			// Tank Player
+			if (level_array[x][y] == 't')
+			{
+				sf::Vector2f start_pos(x * 64, y * 64);
+				Player NewPlayer(start_pos, tank);
+
+				// Why do I have to hold these here?
+				NewPlayer.player_shape.setTexture(&player_tex);
+				NewPlayer.entity_text.setFont(entity_font);
+
+				players.push_back(NewPlayer);
+			}
 		}
 	}
 
@@ -149,7 +162,7 @@ void Level::Reset()
 	turns = 0;
 }
 
-// Check info or move the player
+// Player clicks a position on the grid
 void Level::Click(sf::Vector2f _mouse_pos)
 {
 	for (int i = 0; i < enemies.size(); i++)
@@ -194,6 +207,7 @@ void Level::Display()
 	// Player events
 	players[current_player].Animate();
 	players[current_player].Display(); // Communicate the top is player
+	players[current_player].UpdateIcons(); // Change colour of icons when they have performed their action
 
 	// Enemy events
 	enemies[current_enemy].Animate();
@@ -263,7 +277,7 @@ void Level::Attack(Entity* _attack, Entity* _defend)
 	if (_attack->can_attack)
 	{
 		// Check the target is within range
-		if (abs(_defend->GetShape().getPosition().x - _attack->GetShape().getPosition().x) < _attack->GetRange() && abs(_defend->GetShape().getPosition().y - _attack->GetShape().getPosition().y) < _attack->GetRange())
+		if (abs(_defend->GetShape()->getPosition().x - _attack->GetShape()->getPosition().x) < _attack->GetRange()*65.f && abs(_defend->GetShape()->getPosition().y - _attack->GetShape()->getPosition().y) < _attack->GetRange()*65.f)
 		{
 
 			int crit_hit = rand() % 100;
@@ -297,6 +311,32 @@ void Level::Attack(Entity* _attack, Entity* _defend)
 	}
 }
 
+// Check if all player moves have been done
+void Level::PassTurn()
+{
+	bool pass = true;
+
+	for (int i = 0; i < players.size(); i++)
+	{
+		if (infinite_turn)
+		{
+			players[i].can_attack = true;
+			players[i].can_move = true;
+		}
+
+		if (players[i].can_attack || players[i].can_move)
+		{
+			pass = false;
+		}
+	}
+
+	// Automatically switch to the enemies turn
+	if (pass)
+	{
+		EnemyTurn();
+	}
+}
+
 // Perform all of the enemy moves and give the player back their turn
 void Level::EnemyTurn()
 {
@@ -310,6 +350,8 @@ void Level::EnemyTurn()
 			enemies[i].Move();
 			Attack(&enemies[i], &players[j]); // Attack now, if now in range
 		}
+		
+		enemies[i].can_move = true;
 		enemies[i].can_attack = true;
 	}
 
@@ -321,6 +363,14 @@ void Level::EnemyTurn()
 		players[i].can_move = true;
 		players[i].can_attack = true;
 	}
+}
+
+// One function to call all other level functions
+void Level::Update()
+{
+	CollisionChecks();
+	PassTurn();
+	Display();
 }
 
 // Print info to screen
@@ -348,7 +398,11 @@ void Level::Draw(sf::RenderWindow& _window)
 		_window.draw(players[i].player_shape);
 	}
 
+	// Draw current player's state
 	_window.draw(players[current_player].entity_text);
+	
+	_window.draw(players[current_player].attack_icon);
+	_window.draw(players[current_player].move_icon);
 
 	// Draw ALL the enemies
 	for (int i = 0; i < enemies.size(); i++)

@@ -35,14 +35,16 @@ void Enemy::Move()
 		Move();
 	}
 
-	if (health > 0)
+	if (health > 0 && can_move)
 	{
-		// Check not out of bounds
+		// Check not out of bounds of the grid
 		if (enemy_shape.getPosition().x + horizontal_movement[hor_input] < 550 && enemy_shape.getPosition().x + horizontal_movement[hor_input] > 40 && enemy_shape.getPosition().y + vertical_movement[ver_input] > 40 && enemy_shape.getPosition().y + vertical_movement[ver_input] < 550)
 		{
 			enemy_shape.move({ horizontal_movement[hor_input], vertical_movement[ver_input] });
+			can_move = false;
 		}
 
+		// Not a valid move
 		else
 		{
 			Move();

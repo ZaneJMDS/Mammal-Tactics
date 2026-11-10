@@ -13,9 +13,11 @@ Player::Player(sf::Vector2f _start_pos, EntityTypes _entity_type)
 	SetStats();
 
 	// Icon text location
-	attack_icon.setSize({ 64.f, 64.f });
-	move_icon.setSize({ 64.f, 64.f });
-	special_icon.setSize({ 64.f, 64.f });
+	attack_icon.setSize({ 32.f, 32.f });
+	move_icon.setSize({ 32.f, 32.f });
+	special_icon.setSize({ 32.f, 32.f });
+	attack_icon.setPosition({ 700.f, 0.f });
+	move_icon.setPosition({ 700.f, 100.f });
 
 	entity_text.setPosition({ 800, 0 });
 
@@ -24,32 +26,25 @@ Player::Player(sf::Vector2f _start_pos, EntityTypes _entity_type)
 
 	Reset();
 
+	// y = (2x + 1)^2
+	// Y is the number of tiles to be calculated and x is the range value
 	// Range tiles that move with the player
-	for (int i = 0; i < 9; i++)
+	for (int i = -range; i < range+1; i++)
 	{
-		sf::RectangleShape NewRangeTile;
-		NewRangeTile.setSize({64.f, 64.f});
-		NewRangeTile.setFillColor(sf::Color(0, 0, 255, 128)); // See through blue
-
-		// First collumn
-		if (i < 3)
+		for (int j = -range; j < range+1; j++)
 		{
-			NewRangeTile.setPosition({ -64.f + player_shape.getPosition().x, (float)(64 * i) - 64.f + player_shape.getPosition().y});
-		}
+			// Maybe ignore middle tile
+			if (i != 0 && j != 0);
+			{
+				sf::RectangleShape NewRangeTile;
+				NewRangeTile.setSize({ 64.f, 64.f });
+				NewRangeTile.setFillColor(sf::Color(0, 0, 255, 128)); // See through blue
 
-		// Second collumn
-		else if (i < 6)
-		{
-			NewRangeTile.setPosition({ 0.f + player_shape.getPosition().x, (float)(64 * (i - 3)) - 64.f + player_shape.getPosition().y });
-		}
+				NewRangeTile.setPosition({ (float)(64 * i) + player_shape.getPosition().x, (float)(64 * j) + player_shape.getPosition().y });
 
-		// Third collumn
-		else
-		{
-			NewRangeTile.setPosition({ 64.f + player_shape.getPosition().x, (float)(64 * (i - 6)) - 64.f + player_shape.getPosition().y });
+				range_tiles.push_back(NewRangeTile);
+			}
 		}
-
-		range_tiles.push_back(NewRangeTile);
 	}
 }
 
@@ -57,101 +52,27 @@ Player::~Player()
 {
 }
 
-// Move the player one tile in direction held
-void Player::Move()
-{
-	// Left
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
-	{
-		// Check not out of bounds
-		if (player_shape.getPosition().x > 40)
-		{
-			player_shape.move({ -64.f, 0.f });
-
-			for (int i = 0; i < 9; i++)
-			{
-				range_tiles[i].move({ -64.f, 0.f });
-			}
-		}
-	}
-
-	// Right
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
-	{
-		// Check not out of bounds
-		if (player_shape.getPosition().x < 550)
-		{
-			player_shape.move({ 64.f, 0.f });
-
-			for (int i = 0; i < 9; i++)
-			{
-				range_tiles[i].move({ 64.f, 0.f });
-			}
-		}
-	}
-
-	// Up
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
-	{
-		// Check not out of bounds
-		if (player_shape.getPosition().y > 40)
-		{
-			player_shape.move({ 0.f, -64.f });
-
-			for (int i = 0; i < 9; i++)
-			{
-				range_tiles[i].move({ 0.f, -64.f });
-			}
-		}
-	}
-
-	// Down
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
-	{
-		// Check not out of bounds
-		if (player_shape.getPosition().y < 550)
-		{
-			player_shape.move({ 0.f, 64.f });
-
-			for (int i = 0; i < 9; i++)
-			{
-				range_tiles[i].move({ 0.f, 64.f });
-			}
-		}
-	}
-}
-
 // Move to the mouse position
 void Player::MoveTo(sf::Vector2f _move_pos)
 {
+	// Round it, so that move pos is a multiple of 64
 	sf::Vector2f move_pos;
 	move_pos.x = std::floor(_move_pos.x / 64) * 64;
 	move_pos.y = std::floor(_move_pos.y / 64) * 64;
 
 	// Check that the player is in range
-	if (abs(move_pos.x - player_shape.getPosition().x) < range && abs(move_pos.y - player_shape.getPosition().y) < range && can_move && player_shape.getPosition() != move_pos)
+	if (abs(move_pos.x - player_shape.getPosition().x) < range * 65 && abs(move_pos.y - player_shape.getPosition().y) < range * 65 && can_move && player_shape.getPosition() != move_pos)
 	{
 		player_shape.setPosition(move_pos);
 
 		// Range tiles that move with the player
-		for (int i = 0; i < 9; i++)
+		int k = 0;
+		for (int i = -range; i < range + 1; i++)
 		{
-			// First collumn
-			if (i < 3)
+			for (int j = -range; j < range + 1; j++)
 			{
-				range_tiles[i].setPosition({ -64.f + move_pos.x, (float)(64 * i) - 64.f + move_pos.y });
-			}
-
-			// Second collumn
-			else if (i < 6)
-			{
-				range_tiles[i].setPosition({ 0.f + move_pos.x, (float)(64 * (i - 3)) - 64.f + move_pos.y });
-			}
-
-			// Third collumn
-			else
-			{
-				range_tiles[i].setPosition({ 64.f + move_pos.x, (float)(64 * (i - 6)) - 64.f + move_pos.y });
+				range_tiles[k].setPosition({64.f * i + move_pos.x, 64.f * j + move_pos.y});
+				k++;
 			}
 		}
 
@@ -183,6 +104,29 @@ void Player::Special()
 	{
 		std::cout << "Damage up";
 		damage++;
+	}
+}
+
+void Player::UpdateIcons()
+{
+	if (can_move)
+	{
+		move_icon.setFillColor(sf::Color::White);
+	}
+
+	else
+	{
+		move_icon.setFillColor(sf::Color::Black);
+	}
+
+	if (can_attack)
+	{
+		attack_icon.setFillColor(sf::Color::White);
+	}
+
+	else
+	{
+		attack_icon.setFillColor(sf::Color::Black);
 	}
 }
 

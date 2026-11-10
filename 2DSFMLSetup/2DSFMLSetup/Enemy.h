@@ -24,6 +24,6 @@ public:
 
 	void Animate();
 
-	sf::RectangleShape GetShape() override { return enemy_shape; }
+	sf::RectangleShape* GetShape() override { return &enemy_shape; }
 };
 
