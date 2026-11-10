@@ -262,7 +262,7 @@ int main()
         }
 
         // Debug window events
-        while (const std::optional event = window.pollEvent())
+        while (const std::optional event = debug_window.pollEvent())
         {
             // Catch the resize events
             if (const auto* resized = event->getIf<sf::Event::Resized>())
@@ -278,7 +278,26 @@ int main()
                 // Infinite turns toggle
                 if (keyPressed->code == sf::Keyboard::Key::I)
                 {
-                    levels[current_level].infinite_turn = !levels[current_level].infinite_turn;
+                    levels[current_level].ToggleInfiniteTurn();
+                }
+
+                // Level skip
+                // Debug Level switcher
+                for (int i = 0; i < max_levels; i++)
+                {
+                    // Dont unload the level if it is current one 
+                    if (i != current_level)
+                    {
+                        // Ascii values for number keys
+                        if (keyPressed->code == sf::Keyboard::Key(i + 27))
+                        {
+                            if (!game_start) { game_start = true; }
+                            levels[current_level].UnloadLevel();
+                            current_level = i;
+                            levels[current_level].LoadLevel();
+                            levels[current_level].Reset();
+                        }
+                    }
                 }
             }
         }
@@ -320,7 +339,7 @@ int main()
             window.draw(background_shape);
 
             // Draw the current turn
-            TurnText.setPosition({1000, 0});
+            TurnText.setPosition({1000.f, 0.f});
             TurnText.setString("Turns: " + std::to_string(levels[current_level].GetTurn()));
             window.draw(TurnText);
 
@@ -331,7 +350,7 @@ int main()
 
         // Debug window events
         debug_window.clear();
-        InfiniteTurnText.setString("Infinite turns: " + levels[current_level].infinite_turn);
+        InfiniteTurnText.setString("Infinite turns: " + std::to_string(levels[current_level].infinite_turn));
         debug_window.draw(InfiniteTurnText);
         debug_window.display();
     }

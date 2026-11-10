@@ -54,6 +54,7 @@ public:
 	void Update();
 	void Draw(sf::RenderWindow& _window);
 
+	void ToggleInfiniteTurn() { infinite_turn = !infinite_turn; }
 	bool infinite_turn = false;
 
 private:
