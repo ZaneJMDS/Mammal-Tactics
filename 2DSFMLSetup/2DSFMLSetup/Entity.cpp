@@ -34,6 +34,13 @@ void Entity::SetStats()
 		crit_chance = 25;
 		break;
 
+	case super:
+		damage = 2;
+		range = 1;
+		max_health = 1000;
+		crit_chance = 100;
+		break;
+
 	default:
 		break;
 	}

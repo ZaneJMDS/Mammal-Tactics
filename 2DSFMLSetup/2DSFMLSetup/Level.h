@@ -28,6 +28,9 @@ public:
 
 	// Entities
 	sf::Texture player_tex;
+	sf::Texture attack_icon_tex;
+	sf::Texture footstep_icon_tex;
+	sf::Texture special_icon_tex;
 	sf::Font entity_font;
 
 	std::vector<Enemy> enemies;

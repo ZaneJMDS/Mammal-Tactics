@@ -5,9 +5,6 @@ Player::Player(sf::Vector2f _start_pos, EntityTypes _entity_type)
 	start_pos = _start_pos;
 	entity_type = _entity_type;
 
-	// y = (2x + 1)^2
-	// Y is the number of tiles to be calculated and x is the range value
-
 	player_shape.setSize({64.f, 64.f});
 
 	SetStats();
@@ -17,7 +14,8 @@ Player::Player(sf::Vector2f _start_pos, EntityTypes _entity_type)
 	move_icon.setSize({ 32.f, 32.f });
 	special_icon.setSize({ 32.f, 32.f });
 	attack_icon.setPosition({ 700.f, 0.f });
-	move_icon.setPosition({ 700.f, 100.f });
+	move_icon.setPosition({ 700.f, 32.f });
+	special_icon.setPosition({ 700.f, 64.f });
 
 	entity_text.setPosition({ 800, 0 });
 
@@ -60,23 +58,26 @@ void Player::MoveTo(sf::Vector2f _move_pos)
 	move_pos.x = std::floor(_move_pos.x / 64) * 64;
 	move_pos.y = std::floor(_move_pos.y / 64) * 64;
 
-	// Check that the player is in range
-	if (abs(move_pos.x - player_shape.getPosition().x) < range * 65 && abs(move_pos.y - player_shape.getPosition().y) < range * 65 && can_move && player_shape.getPosition() != move_pos)
+	if (health > 0)
 	{
-		player_shape.setPosition(move_pos);
-
-		// Range tiles that move with the player
-		int k = 0;
-		for (int i = -range; i < range + 1; i++)
+		// Check that the player is in range
+		if (abs(move_pos.x - player_shape.getPosition().x) < range * 65 && abs(move_pos.y - player_shape.getPosition().y) < range * 65 && can_move && player_shape.getPosition() != move_pos)
 		{
-			for (int j = -range; j < range + 1; j++)
-			{
-				range_tiles[k].setPosition({64.f * i + move_pos.x, 64.f * j + move_pos.y});
-				k++;
-			}
-		}
+			player_shape.setPosition(move_pos);
 
-		can_move = false;
+			// Range tiles that move with the player
+			int k = 0;
+			for (int i = -range; i < range + 1; i++)
+			{
+				for (int j = -range; j < range + 1; j++)
+				{
+					range_tiles[k].setPosition({ 64.f * i + move_pos.x, 64.f * j + move_pos.y });
+					k++;
+				}
+			}
+
+			can_move = false;
+		}
 	}
 }
 

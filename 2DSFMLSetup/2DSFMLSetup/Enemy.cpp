@@ -54,7 +54,12 @@ void Enemy::Move()
 
 void Enemy::Special()
 {
-	std::cout << "SPECIAL";
+	switch (entity_type)
+	{
+	case super:
+		damage *= 2;
+		range += 1;
+	}
 }
 
 void Enemy::Animate()

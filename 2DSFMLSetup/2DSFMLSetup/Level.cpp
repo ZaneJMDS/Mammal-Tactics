@@ -7,6 +7,22 @@ Level::Level(std::string _filepath) : filepath(_filepath)
 		throw "Can't find player texture";
 	}
 
+	// Icons
+	if (!attack_icon_tex.loadFromFile("Sprites/attack.png"))
+	{
+		throw "Can't find icon";
+	}
+
+	if (!footstep_icon_tex.loadFromFile("Sprites/footstep.png"))
+	{
+		throw "Can't find icon";
+	}
+
+	if (!special_icon_tex.loadFromFile("Sprites/sparkles.png"))
+	{
+		throw "Can't find icon";
+	}
+
 	if (!entity_font.openFromFile("Cinzel-Bold.ttf"))
 	{
 		throw "Can't find entity text";
@@ -87,6 +103,9 @@ void Level::LoadLevel()
 
 				// Why do I have to hold these here?
 				NewPlayer.player_shape.setTexture(&player_tex);
+				NewPlayer.attack_icon.setTexture(&attack_icon_tex);
+				NewPlayer.move_icon.setTexture(&footstep_icon_tex);
+				NewPlayer.special_icon.setTexture(&special_icon_tex);
 				NewPlayer.entity_text.setFont(entity_font);
 
 				players.push_back(NewPlayer);
@@ -100,6 +119,9 @@ void Level::LoadLevel()
 
 				// Why do I have to hold these here?
 				NewPlayer.player_shape.setTexture(&player_tex);
+				NewPlayer.attack_icon.setTexture(&attack_icon_tex);
+				NewPlayer.move_icon.setTexture(&footstep_icon_tex);
+				NewPlayer.special_icon.setTexture(&special_icon_tex);
 				NewPlayer.entity_text.setFont(entity_font);
 
 				players.push_back(NewPlayer);
@@ -113,6 +135,9 @@ void Level::LoadLevel()
 
 				// Why do I have to hold these here?
 				NewPlayer.player_shape.setTexture(&player_tex);
+				NewPlayer.attack_icon.setTexture(&attack_icon_tex);
+				NewPlayer.move_icon.setTexture(&footstep_icon_tex);
+				NewPlayer.special_icon.setTexture(&special_icon_tex);
 				NewPlayer.entity_text.setFont(entity_font);
 
 				players.push_back(NewPlayer);
@@ -128,6 +153,7 @@ void Level::LoadLevel()
 		throw "Level needs at least one player and enemy";
 	}
 
+	// Set the firset player and enemy as the current
 	enemies[current_enemy].SetTarget();
 	players[current_player].SetTarget();
 }
@@ -243,7 +269,15 @@ void Level::CollisionChecks()
 			}
 		}
 		k = 0;
+
+		// Out of the map
+		if (players[current_player].range_tiles[i].getPosition().x > 600.f || players[current_player].range_tiles[i].getPosition().y > 600.f)
+		{
+			players[current_player].range_tiles[i].setFillColor(sf::Color(0, 0, 0, 0));
+		}
 	}
+
+
 
 	// Wall tiles
 	for (int i = 0; i < wall_tiles.size(); i++)
@@ -274,7 +308,7 @@ void Level::Combat()
 // First is attacker and second is blocker
 void Level::Attack(Entity* _attack, Entity* _defend)
 {
-	if (_attack->can_attack)
+	if (_attack->can_attack && _attack->GetHealth() > 0)
 	{
 		// Check the target is within range
 		if (abs(_defend->GetShape()->getPosition().x - _attack->GetShape()->getPosition().x) < _attack->GetRange()*65.f && abs(_defend->GetShape()->getPosition().y - _attack->GetShape()->getPosition().y) < _attack->GetRange()*65.f)
@@ -400,9 +434,9 @@ void Level::Draw(sf::RenderWindow& _window)
 
 	// Draw current player's state
 	_window.draw(players[current_player].entity_text);
-	
 	_window.draw(players[current_player].attack_icon);
 	_window.draw(players[current_player].move_icon);
+	_window.draw(players[current_player].special_icon);
 
 	// Draw ALL the enemies
 	for (int i = 0; i < enemies.size(); i++)

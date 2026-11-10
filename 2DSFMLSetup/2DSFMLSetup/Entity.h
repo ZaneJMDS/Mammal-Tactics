@@ -15,6 +15,7 @@ enum EntityTypes
 	melee,
 	ranged,
 	tank,
+	super
 };
 
 class Entity
