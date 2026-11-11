@@ -31,6 +31,7 @@ public:
 	sf::Texture attack_icon_tex;
 	sf::Texture footstep_icon_tex;
 	sf::Texture special_icon_tex;
+	sf::Texture wave_tex;
 	sf::Font entity_font;
 
 	std::vector<Enemy> enemies;
@@ -47,7 +48,11 @@ public:
 	void Display();
 	void CollisionChecks();
 	
+	bool CheckAllEnemiesAlive();
+	bool CheckAllPlayersAlive();
+	
 	void Combat();
+	void PlayerSpecial();
 	void Attack(Entity* _attack, Entity* _defend);
 	
 	void PassTurn();
@@ -63,6 +68,7 @@ public:
 private:
 	std::string filepath;
 	int turns = 0;
+	int best_turns = 100;
 	int current_player = 0;
 	int current_enemy = 0;
 };

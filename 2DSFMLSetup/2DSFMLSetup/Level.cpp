@@ -23,6 +23,11 @@ Level::Level(std::string _filepath) : filepath(_filepath)
 		throw "Can't find icon";
 	}
 
+	if (!wave_tex.loadFromFile("Sprites/waves.png"))
+	{
+		throw "Can't find icon";
+	}
+
 	if (!entity_font.openFromFile("Cinzel-Bold.ttf"))
 	{
 		throw "Can't find entity text";
@@ -64,13 +69,13 @@ void Level::LoadLevel()
 		// rows
 		for (int x = 0; x < level_width; x++)
 		{
-			// Wall
+			// Wave
 			if (level_array[x][y] == 'w')
 			{
 				// Spawn a box at current location
 				sf::RectangleShape* NewBox = new sf::RectangleShape({ 64, 64 });
 				NewBox->setPosition(sf::Vector2f(x * 64, y * 64));
-				NewBox->setFillColor(sf::Color::Black);
+				NewBox->setTexture(&wave_tex);
 				wall_tiles.push_back(NewBox);
 			}
 
@@ -168,6 +173,12 @@ void Level::UnloadLevel()
 	}
 
 	level_tiles.clear();
+
+	// Get the shortest amount of turns
+	if (turns < best_turns)
+	{
+		turns = best_turns;
+	}
 }
 
 // Reset the room
@@ -299,10 +310,59 @@ void Level::CollisionChecks()
 	}
 }
 
+// If false, player wins
+bool Level::CheckAllEnemiesAlive()
+{
+	// Check to see if any enemies have health, if not proceed to next level
+	int enemies_dead = 0;
+	for (int i = 0; i < enemies.size(); i++)
+	{
+		if (enemies[i].GetHealth() <= 0)
+		{
+			enemies_dead++;
+		}
+
+		// All enemies killed, move to next level
+		if (enemies_dead == enemies.size())
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+// If false, enemy wins
+bool Level::CheckAllPlayersAlive()
+{
+	// Check to see if any enemies have health, if not proceed to next level
+	int players_dead = 0;
+	for (int i = 0; i < players.size(); i++)
+	{
+		if (players[i].GetHealth() <= 0)
+		{
+			players_dead++;
+		}
+
+		// All enemies killed, move to next level
+		if (players_dead == players.size())
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 // Selected player attacks selected enemy and vice versa
 void Level::Combat()
 {
 	Attack(&players[current_player], &enemies[current_enemy]);
+}
+
+void Level::PlayerSpecial()
+{
+	players[current_player].Special();
 }
 
 // First is attacker and second is blocker
@@ -356,9 +416,10 @@ void Level::PassTurn()
 		{
 			players[i].can_attack = true;
 			players[i].can_move = true;
+			players[i].can_special = true;
 		}
 
-		if (players[i].can_attack || players[i].can_move)
+		if (players[i].can_attack || players[i].can_move || players[i].can_special)
 		{
 			pass = false;
 		}
@@ -383,10 +444,12 @@ void Level::EnemyTurn()
 			Attack(&enemies[i], &players[j]); // If in range, attack first
 			enemies[i].Move();
 			Attack(&enemies[i], &players[j]); // Attack now, if now in range
+			enemies[i].Special();
 		}
 		
 		enemies[i].can_move = true;
 		enemies[i].can_attack = true;
+		enemies[i].can_special = true;
 	}
 
 	turns++; // Next turn
@@ -396,6 +459,7 @@ void Level::EnemyTurn()
 	{
 		players[i].can_move = true;
 		players[i].can_attack = true;
+		players[i].can_special = true;
 	}
 }
 

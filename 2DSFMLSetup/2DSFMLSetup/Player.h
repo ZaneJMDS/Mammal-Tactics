@@ -26,7 +26,6 @@ public:
 
 	// Actions the player can take on their turn
 	void MoveTo(sf::Vector2f _move_pos);
-	void Special();
 
 	// Indicators for if the user has this enemy selected
 	void SetTarget() override { player_shape.setFillColor(sf::Color::Blue); }

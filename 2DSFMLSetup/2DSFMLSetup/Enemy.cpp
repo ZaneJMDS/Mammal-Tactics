@@ -52,16 +52,6 @@ void Enemy::Move()
 	}
 }
 
-void Enemy::Special()
-{
-	switch (entity_type)
-	{
-	case super:
-		damage *= 2;
-		range += 1;
-	}
-}
-
 void Enemy::Animate()
 {
 }

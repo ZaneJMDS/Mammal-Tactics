@@ -16,7 +16,6 @@ public:
 
 	// Actions the enemy can take on their turn
 	void Move();
-	void Special();
 
 	// Indicators for if the user has this enemy selected
 	void SetTarget() override { enemy_shape.setFillColor(sf::Color::Blue); }

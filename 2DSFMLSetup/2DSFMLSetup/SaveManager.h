@@ -8,10 +8,8 @@ public:
 	SaveManager();
 	~SaveManager();
 
-	void SaveFile();
-	void LoadFile();
+	void SaveFile(int _current_level);
+	int LoadFile();
 	void ClearSave();
-
-	int levels_beaten = 0;
 };
 

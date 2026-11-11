@@ -33,3 +33,4 @@ Game made by Zane Jackson
 Attack icon <a href="https://www.flaticon.com/free-icons/attack" title="attack icons">Attack icons created by Hilmy Abiyyu A. - Flaticon</a>
 Move icon <a href="https://www.flaticon.com/free-icons/footprint" title="footprint icons">Footprint icons created by meaicon - Flaticon</a>
 Special icon <a href="https://www.flaticon.com/free-icons/magic" title="magic icons">Magic icons created by meaicon - Flaticon</a>
+Wave icon <a href="https://www.flaticon.com/free-icons/wave" title="wave icons">Wave icons created by BomSymbols - Flaticon</a>

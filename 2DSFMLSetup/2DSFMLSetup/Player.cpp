@@ -81,53 +81,37 @@ void Player::MoveTo(sf::Vector2f _move_pos)
 	}
 }
 
-// Could do area damage, heal, or buff
-void Player::Special()
-{
-	// Area
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num1))
-	{
-		std::cout << "Area attack";
-	}
-
-	// Heal
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num2))
-	{
-		if (health < max_health)
-		{
-			std::cout << "Healing...";
-			health += 2;
-		}
-	}
-
-	// Damage up
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num3))
-	{
-		std::cout << "Damage up";
-		damage++;
-	}
-}
-
+// Update visual icons if they arr available
 void Player::UpdateIcons()
 {
 	if (can_move)
 	{
-		move_icon.setFillColor(sf::Color::White);
+		move_icon.setFillColor(sf::Color(0, 0, 0, 255));
 	}
 
 	else
 	{
-		move_icon.setFillColor(sf::Color::Black);
+		move_icon.setFillColor(sf::Color(0, 0, 0, 0));
 	}
 
 	if (can_attack)
 	{
-		attack_icon.setFillColor(sf::Color::White);
+		attack_icon.setFillColor(sf::Color(0, 0, 0, 255));
 	}
 
 	else
 	{
-		attack_icon.setFillColor(sf::Color::Black);
+		attack_icon.setFillColor(sf::Color(0, 0, 0, 0));
+	}
+
+	if (can_special)
+	{
+		special_icon.setFillColor(sf::Color(0, 0, 0, 255));
+	}
+
+	else
+	{
+		special_icon.setFillColor(sf::Color(0, 0, 0, 0));
 	}
 }
 
