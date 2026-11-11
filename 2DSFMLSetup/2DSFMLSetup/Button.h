@@ -1,7 +1,6 @@
 /***********************************************************************
 Author      :	Zane Sebastian Jackson
-Mail        :   Zane.Jackson@mds.ac.nz
-Description :	Class for Menu Buttons
+Description :	Class for creating interactible Buttons
 File name   :   Button.h
 **************************************************************************/
 
@@ -13,8 +12,9 @@ class Button
 public:
 	sf::RectangleShape m_ButtonShape;
 	sf::Text text;
+	sf::Font blank;
 
-	Button(sf::Vector2f _position, sf::Color _color, sf::Text _text);
+	Button(sf::Vector2f _position, sf::Color _color, std::string _text);
 	~Button();
 };
 

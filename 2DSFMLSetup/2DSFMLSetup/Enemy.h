@@ -1,3 +1,9 @@
+/***********************************************************************
+Author      :	Zane Jackson
+Description :	Enemy which behaves randomly
+File name   :   Enemy.h
+**************************************************************************/
+
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <Random>

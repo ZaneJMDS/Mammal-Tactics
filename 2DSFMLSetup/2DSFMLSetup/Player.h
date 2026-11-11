@@ -1,6 +1,5 @@
 /***********************************************************************
 Author      :	Zane Jackson
-Mail        :   Zane.Jackson@mds.ac.nz
 Description :	Class for managing the player object
 File name   :   Player.h
 **************************************************************************/

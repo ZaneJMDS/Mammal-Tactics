@@ -177,7 +177,7 @@ void Level::UnloadLevel()
 	// Get the shortest amount of turns
 	if (turns < best_turns)
 	{
-		turns = best_turns;
+		best_turns = turns;
 	}
 }
 
@@ -389,19 +389,7 @@ void Level::Attack(Entity* _attack, Entity* _defend)
 			}
 
 			_attack->can_attack = false;
-
-			std::cout << "Selected attacks\n";
 		}
-
-		else
-		{
-			std::cout << "Target is not in range\n";
-		}
-	}
-
-	else
-	{
-		std::cout << "Selected has already attacked\n";
 	}
 }
 

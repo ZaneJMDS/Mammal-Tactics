@@ -1,6 +1,5 @@
 /***********************************************************************
 Author      :	Zane Jackson
-Mail        :   Zane.Jackson@mds.ac.nz
 Description :	Managing, loading, and unloading levels
 File name   :   Level.h
 **************************************************************************/
@@ -58,6 +57,7 @@ public:
 	void PassTurn();
 	void EnemyTurn();
 	int GetTurn() { return turns; }
+	int GetBestTurns() { return best_turns; }
 
 	void Update();
 	void Draw(sf::RenderWindow& _window);

@@ -1,7 +1,6 @@
 /***********************************************************************
 Author      :	Zane Jackson
-Mail        :   Zane.Jackson@mds.ac.nz
-Description :	Class for managing all entities
+Description :	Class for managing entity behaviour
 File name   :   Entity.h
 **************************************************************************/
 

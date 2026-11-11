@@ -1,8 +1,6 @@
 #include "Button.h"
 
-
-// Default button setup
-Button::Button(sf::Vector2f _position, sf::Color _color, sf::Text _text) : text(_text)
+Button::Button(sf::Vector2f _position, sf::Color _color, std::string _text) : text(blank, _text, 20)
 {
 	m_ButtonShape.setPosition(_position);
 	m_ButtonShape.setSize({ 150, 50 });

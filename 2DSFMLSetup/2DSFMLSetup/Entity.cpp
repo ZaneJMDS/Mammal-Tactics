@@ -8,6 +8,7 @@ Entity::~Entity()
 {
 }
 
+// Activate special ability
 void Entity::Special()
 {
 	if (can_special)
@@ -15,8 +16,8 @@ void Entity::Special()
 		switch (entity_type)
 		{
 		case melee:
-			std::cout << "Damage increase";
 			damage += 2;
+			crit_chance += 5;
 
 			break;
 

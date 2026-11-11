@@ -1,7 +1,6 @@
 /***********************************************************************
 Author      :	Zane Jackson
-Mail        :   Zane.Jackson@mds.ac.nz
-Description :	Interval game (2D platformer)
+Description :	Mammal Tactics (Turn based RPG)
 File name   :   Main.cpp
 **************************************************************************/
 
@@ -13,6 +12,7 @@ File name   :   Main.cpp
 #include "Button.h"
 
 bool game_start = false; // false: menu open, True: Game open
+bool Vsync = true; 
 
 // Level setup
 Level level1("Levels/Level1.txt");
@@ -23,23 +23,39 @@ Level levels[max_levels] = { level1, level2, level3 };
 
 // Saves setup
 SaveManager Save1;
-int current_level = Save1.LoadFile();
+int current_level = 0;
+std::vector<int> best_turns;
 
 // Move between levels
-static void SwapLevel(int _target_level)
+static void SwapLevel(int _target_level, sf::Vector2u _resolution)
 {
     if (!game_start) { game_start = true; }
+
     levels[current_level].UnloadLevel();
+    best_turns[current_level] = levels[current_level].GetBestTurns();
+
     current_level = _target_level;
     levels[current_level].LoadLevel();
     levels[current_level].Reset();
-    Save1.SaveFile(current_level);
+    Save1.SaveFile(current_level, Vsync, _resolution, best_turns);
 }
 
 int main()
 {
+    // Load info from save file
+    Save1.LoadFile();
+    current_level = Save1.GetCurrentLevel();
+    Vsync = Save1.GetVsync();
+    best_turns = Save1.GetLevelTurns();
+
+    // View settings
+    sf::Vector2f Center(1000, 1000);
+    sf::Vector2f HalfSize(400, 300);
+    sf::View main_view(Center, HalfSize);
+
     // Window setup
-    sf::RenderWindow window(sf::VideoMode({ 1620, 720 }), "Mammal Tactics", sf::State::Windowed); // GetDesktopMode resizes based on window size
+    sf::RenderWindow window(sf::VideoMode(Save1.GetResolution()), "Mammal Tactics", sf::State::Windowed); // GetDesktopMode resizes based on window size
+    window.setView(main_view);
     sf::RenderWindow debug_window(sf::VideoMode({ 400, 400 }), "Debug Window");
     
     // sf::VideoMode::getDesktopMode()
@@ -48,24 +64,31 @@ int main()
     window.setFramerateLimit(60);
     window.setMinimumSize(sf::Vector2u{ 400, 400 }); // Can't decrease furthur than this
     
-    levels[current_level].LoadLevel();
+    levels[current_level].LoadLevel(); // Load the current file level
 
     // Background
     sf::Texture background_tex("Sprites/background.png");
-    sf::RectangleShape background_shape({ 1620, 720 });
+    sf::RectangleShape background_shape;
     background_shape.setTexture(&background_tex);
 
     // Vsync setup
-    bool Vsync = true;
     window.setVerticalSyncEnabled(Vsync);
 
     // Text setup
     sf::Font Font1("Cinzel-Bold.ttf");
-
     const int text_size = 24;
+
+    // Menu text
     sf::Text TitleText(Font1, "Mammal Tactics", text_size*2);
-    sf::Text Credits(Font1, "Credits: \nGame by Zane\nMammal by Ryan", text_size);
+    TitleText.setOrigin(TitleText.getLocalBounds().getCenter());
+    sf::Text Credits(Font1, "Credits: \nGame by Zane\nMammal by Ryan\nIcons by Hilmy Abiyyu A, meaicon, BomSymbols", text_size);
     sf::Text TotalTurns(Font1, "Total turns: ", text_size);
+    
+    // Gameplay text
+    sf::Text TurnText(Font1, "Turns: ", text_size);
+    sf::Text LevelText(Font1, "Levels: ", text_size);
+    sf::Text CompletionText(Font1, "Player wins", text_size);
+
     bool credits_visible = false;
 
     // Button setup
@@ -73,41 +96,17 @@ int main()
     std::vector<Button> gameplay_buttons;
     std::vector<Button> debug_buttons;
 
-    // Menu buttons
-    sf::Text PlayText(Font1, "Play", text_size);
-    sf::Text CreditText(Font1, "Credit", text_size);
-    sf::Text QuitText(Font1, "Quit", text_size);
-    sf::Text VsyncText(Font1, "VSync: On", text_size);
-    sf::Text ClearSave(Font1, "Clear save", text_size);
-    sf::Text DecVolText(Font1, "Decrease", text_size);
-    sf::Text IncVolText(Font1, "Increase", text_size);
-
-    const int menu_button_count = 7;
-    sf::Text menu_button_roles[menu_button_count] = { PlayText, CreditText, QuitText, VsyncText, ClearSave, DecVolText, IncVolText };
-
-    // Gameplay buttons
-    sf::Text PassTurnText(Font1, "Pass turn", text_size);
-    sf::Text AttackText(Font1, "Attack", text_size);
-    sf::Text SpecialText(Font1, "Special", text_size);
-
-    sf::Text gameplay_button_roles[3] = { PassTurnText, AttackText, SpecialText };
-
-    // Debug buttons
-    sf::Text InfiniteTurnText(Font1, "Infinite turn: Off", 20);
-    sf::Text PreviousTurnText(Font1, "Previous level", 20);
-    sf::Text NextTurnText(Font1, "Next level", 20);
-
-    sf::Text debug_button_roles[3] = { InfiniteTurnText, PreviousTurnText, NextTurnText };
-
-    // Other Text
-    sf::Text TurnText(Font1, "Turns: ", text_size);
-    sf::Text LevelText(Font1, "Levels: ", text_size);
+    const int menu_button_count = 6;
+    std::string menu_button_roles[menu_button_count] = { "Play", "Credit", "Quit", "VSync: On", "Clear save", "Menu" };
+    std::string gameplay_button_roles[3] = { "Pass turn", "Attack", "Special" };
+    std::string debug_button_roles[3] = { "Infinite turn: Off", "Prev level", "Next level" };
 
     // Create every menu button
     for (int i = 0; i < menu_button_count; i++)
     {
         // Makes button with location, colour, text 
         Button NewButton({ 550.f, 100.f * i + 200.f }, sf::Color::Green, menu_button_roles[i]);
+        NewButton.text.setFont(Font1);
         menu_buttons.push_back(NewButton);
     }
 
@@ -116,6 +115,7 @@ int main()
     {
         // Makes button with location, colour, text 
         Button NewButton({ 150.f * i, 650.f }, sf::Color::Red, gameplay_button_roles[i]);
+        NewButton.text.setFont(Font1);
         gameplay_buttons.push_back(NewButton);
     }
 
@@ -124,17 +124,22 @@ int main()
     {
         // Makes button with location, colour, text 
         Button NewButton({ 0.f, 0.f + 100.f * i }, sf::Color::Blue, debug_button_roles[i]);
+        NewButton.text.setFont(Font1);
         debug_buttons.push_back(NewButton);
     }
 
     // Game loop
     while (window.isOpen())
     {
-        // Set position of title text
+        // Set position and size relative to the window
         TitleText.setPosition(sf::Vector2f(window.getSize().x / 2, window.getSize().y / 8));
+        Credits.setPosition(sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2));
+        CompletionText.setPosition(sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2));
+
+        background_shape.setSize(sf::Vector2f(window.getSize()));
 
         // Update mouse pos
-        sf::Vector2f mouse_pos = sf::Vector2f(sf::Mouse::getPosition(window));
+        sf::Vector2f mouse_pos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 
         // Only while window is selected
         while (const std::optional event = window.pollEvent())
@@ -167,6 +172,12 @@ int main()
                             if (i == 0)
                             {
                                 game_start = true;
+
+                                // Restart from the beggining if player has beaten every level
+                                if (current_level == max_levels)
+                                {
+                                    SwapLevel(0, window.getSize());
+                                }
                             }
 
                             // Credits
@@ -178,6 +189,7 @@ int main()
                             // End game
                             if (i == 2)
                             {
+                                Save1.SaveFile(current_level, Vsync, window.getSize(), best_turns);
                                 return 0;
                             }
 
@@ -190,6 +202,8 @@ int main()
                                 // Update the visual to the player
                                 if (Vsync) { menu_buttons[i].text.setString("Vsync: On"); }
                                 else { menu_buttons[i].text.setString("Vsync: Off"); }
+
+                                Save1.SaveFile(current_level, Vsync, window.getSize(), best_turns);
                             }
 
                             // Clear save
@@ -198,16 +212,11 @@ int main()
                                 Save1.ClearSave();
                             }
 
-                            // Increase music vol
+                            // Return to menu
                             if (i == 5)
                             {
-
-                            }
-
-                            // Decrease music vol
-                            if (i == 6)
-                            {
-
+                                credits_visible = false;
+                                game_start = false;
                             }
                         }
                     }
@@ -288,6 +297,7 @@ int main()
             }
         }
 
+
         // Debug window events
         while (const std::optional event = debug_window.pollEvent())
         {
@@ -297,31 +307,6 @@ int main()
                 // update the view to the new size of the window
                 sf::FloatRect visibleArea({ 0.f, 0.f }, sf::Vector2f(resized->size));
                 debug_window.setView(sf::View(visibleArea));
-            }
-
-            // Keybinds for the player
-            if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
-            {
-                // Infinite turns toggle
-                if (keyPressed->code == sf::Keyboard::Key::I)
-                {
-                    levels[current_level].ToggleInfiniteTurn();
-                }
-
-                // Level skip
-                // Debug Level switcher
-                for (int i = 0; i < max_levels; i++)
-                {
-                    // Dont unload the level if it is current one 
-                    if (i != current_level)
-                    {
-                        // Ascii values for number keys
-                        if (keyPressed->code == sf::Keyboard::Key(i + 27))
-                        {
-                            SwapLevel(i);
-                        }
-                    }
-                }
             }
 
             // Debug Buttons
@@ -344,7 +329,7 @@ int main()
                         {
                             if (current_level > 0)
                             {
-                                SwapLevel(current_level - 1);
+                                SwapLevel(current_level - 1, window.getSize());
                             }
                         }
 
@@ -353,7 +338,7 @@ int main()
                         {
                             if (current_level < max_levels - 1)
                             {
-                                SwapLevel(current_level + 1);
+                                SwapLevel(current_level + 1, window.getSize());
                             }
                         }
                     }
@@ -366,27 +351,43 @@ int main()
         // All enemies killed, move to next level
         if (!levels[current_level].CheckAllEnemiesAlive())
         {
+            CompletionText.setString("Player wins");
+
             // Move to next level
             if (current_level < max_levels - 1)
             {
-                SwapLevel(current_level + 1);
+                SwapLevel(current_level + 1, window.getSize());
             }
 
             // Return to menu
             else
             {
                 game_start = false;
-                std::string turns_string = "Max turns:\n";
-
-                // Display scores to the user
-                for (int i = 0; i < max_levels; i++)
-                {
-                    turns_string += "Level " + std::to_string(i + 1) + ": " + std::to_string(levels[i].GetTurn()) + "\n";
-                }
-
-                TotalTurns.setString(turns_string);
             }
         }
+
+        // All players killed return to menu
+        if (!levels[current_level].CheckAllPlayersAlive())
+        {
+            CompletionText.setString("Enemy wins");
+            game_start = false;
+        }
+
+        // Display fastest completion to the user
+        std::string turns_string = "Fastest completion:\n";
+
+        for (int i = 0; i < best_turns.size(); i++)
+        {
+            if (levels[i].GetBestTurns() < best_turns[i])
+            {
+                best_turns[i] = levels[i].GetBestTurns();
+            }
+
+            turns_string += "Level " + std::to_string(i + 1) + ": " + std::to_string(best_turns[i]) + " turns\n";
+        }
+
+        TotalTurns.setString(turns_string);
+
 
         // Window events
         window.clear();
@@ -401,7 +402,7 @@ int main()
             if (!credits_visible)
             {
                 // Draw menu buttons and text
-                for (int i = 0; i < menu_button_count; i++)
+                for (int i = 0; i < menu_button_count - 1; i++)
                 {
                     window.draw(menu_buttons[i].m_ButtonShape);
                     window.draw(menu_buttons[i].text);
@@ -414,6 +415,10 @@ int main()
             else
             {
                 window.draw(Credits);
+
+                // Draw the menu button
+                window.draw(menu_buttons[menu_button_count - 1].m_ButtonShape);
+                window.draw(menu_buttons[menu_button_count - 1].text);
             }
         }
 
@@ -440,6 +445,15 @@ int main()
                 window.draw(gameplay_buttons[i].m_ButtonShape);
                 window.draw(gameplay_buttons[i].text);
             }
+
+            if (!levels[current_level].CheckAllEnemiesAlive() || !levels[current_level].CheckAllPlayersAlive())
+            {
+                window.draw(CompletionText);
+            }
+
+            // Draw the menu button
+            window.draw(menu_buttons[menu_button_count - 1].m_ButtonShape);
+            window.draw(menu_buttons[menu_button_count - 1].text);
         }
 
         window.display();

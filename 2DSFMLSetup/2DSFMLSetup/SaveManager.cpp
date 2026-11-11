@@ -9,7 +9,7 @@ SaveManager::~SaveManager()
 }
 
 // Save current level to file
-void SaveManager::SaveFile(int _current_level)
+void SaveManager::SaveFile(int _current_level, bool _vsync, sf::Vector2u _resolution, std::vector<int> _level_turns)
 {
 	// Open the file from this path
 	std::ofstream write_file;
@@ -17,12 +17,19 @@ void SaveManager::SaveFile(int _current_level)
 
 	// Write levels beaten
 	write_file.clear();
-	write_file << _current_level;
+	write_file << _current_level << "\n" << _vsync << "\n" << _resolution.x << ',' << _resolution.y << "\n";
+
+	// Print out level_turns
+	for (int i = 0; i < _level_turns.size(); i++)
+	{
+		write_file << _level_turns[i] << ',';
+	}
+
 	write_file.close();
 }
 
 // Open current level from file
-int SaveManager::LoadFile()
+void SaveManager::LoadFile()
 {
 	// Open the file from this path
 	std::fstream load_file_stream;
@@ -31,10 +38,31 @@ int SaveManager::LoadFile()
 
 	// Get Levels beaten
 	std::getline(load_file_stream, load_file_string);
-	int levels_beaten = stoi(load_file_string);
-	load_file_stream.close();
+	completed_levels = (stoi(load_file_string));
 
-	return levels_beaten;
+	// Get Vsync state
+	std::getline(load_file_stream, load_file_string);
+	Vsync = (stoi(load_file_string));
+
+	// Get the resolution
+	std::getline(load_file_stream, load_file_string, ',');
+	resolution.x = stoi(load_file_string);
+	
+	if (resolution.x < 400) { resolution.x = 400; }
+
+	std::getline(load_file_stream, load_file_string);
+	resolution.y = stoi(load_file_string);
+
+	if (resolution.y < 400) { resolution.y = 400; }
+
+	// Get the lowest amount of turns for each level
+	for (int i = 0; i < 3; i++)
+	{
+		std::getline(load_file_stream, load_file_string, ',');
+		level_turns.push_back(stoi(load_file_string));
+	}
+
+	load_file_stream.close();
 }
 
 // Revert all progress in this save file
@@ -47,6 +75,13 @@ void SaveManager::ClearSave()
 	// Revert progress back to zero
 	// Write levels beaten
 	write_file.clear();
-	write_file << 0;
+	write_file << 0 << "\n" << 1 << "\n" << resolution.x << ',' << resolution.y << "\n";
+
+	// Print out level_turns
+	for (int i = 0; i < level_turns.size(); i++)
+	{
+		write_file << 100 << ',';
+	}
+
 	write_file.close();
 }
