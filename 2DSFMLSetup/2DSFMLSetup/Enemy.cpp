@@ -9,9 +9,6 @@ Enemy::Enemy(sf::Vector2f _start_pos, EntityTypes _entity_type)
 	entity_type = _entity_type;
 
 	SetStats();
-
-	entity_text.setPosition({ 800, 200 });
-
 	Reset();
 
 	srand(time(0)); 
@@ -24,12 +21,14 @@ Enemy::~Enemy()
 // Move the enemy in a random direction
 void Enemy::Move()
 {
+	last_pos = enemy_shape.getPosition();
+
 	int hor_input = rand() % 3; // Decides the direction from eight different options
 	int ver_input = rand() % 3;
 	float horizontal_movement[3] = { -64.f, 0, 64.f };
 	float vertical_movement[3] = { -64.f, 0, 64.f };
 
-	// Can't be center
+	// Can't not make a move
 	if (hor_input == 1 && ver_input == 1)
 	{
 		Move();
@@ -52,6 +51,10 @@ void Enemy::Move()
 	}
 }
 
-void Enemy::Animate()
+// Move back
+void Enemy::MoveBack()
 {
+	can_move = true;
+	enemy_shape.setPosition(last_pos);
+	Move();
 }

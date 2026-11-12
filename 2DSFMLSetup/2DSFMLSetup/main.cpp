@@ -5,7 +5,6 @@ File name   :   Main.cpp
 **************************************************************************/
 
 #include <SFML/Graphics.hpp>
-#include <iostream> // For Debugging
 
 #include "Level.h"
 #include "SaveManager.h"
@@ -36,7 +35,6 @@ static void SwapLevel(int _target_level, sf::Vector2u _resolution)
 
     current_level = _target_level;
     levels[current_level].LoadLevel();
-    levels[current_level].Reset();
     Save1.SaveFile(current_level, Vsync, _resolution, best_turns);
 }
 
@@ -49,20 +47,21 @@ int main()
     best_turns = Save1.GetLevelTurns();
 
     // View settings
-    sf::Vector2f Center(1000, 1000);
-    sf::Vector2f HalfSize(400, 300);
-    sf::View main_view(Center, HalfSize);
+    float screen_height = 800.f;
+    float screen_width = 1200.f;
+    float height_ratio = screen_height / screen_width;
+    float width_ratio = screen_width / screen_height;
+
+    sf::Vector2f Center(screen_width / 2, screen_height / 2);
+    sf::Vector2f FullSize(screen_width, screen_height);
+    sf::View main_view(Center, FullSize);
 
     // Window setup
     sf::RenderWindow window(sf::VideoMode(Save1.GetResolution()), "Mammal Tactics", sf::State::Windowed); // GetDesktopMode resizes based on window size
     window.setView(main_view);
     sf::RenderWindow debug_window(sf::VideoMode({ 400, 400 }), "Debug Window");
-    
-    // sf::VideoMode::getDesktopMode()
-    // sf::VideoMode::getFullscreenMode();
 
-    window.setFramerateLimit(60);
-    window.setMinimumSize(sf::Vector2u{ 400, 400 }); // Can't decrease furthur than this
+    window.setMinimumSize(sf::Vector2u{ 1200, 800 }); // Can't decrease further than this, otherwise start losing info
     
     levels[current_level].LoadLevel(); // Load the current file level
 
@@ -83,23 +82,23 @@ int main()
     TitleText.setOrigin(TitleText.getLocalBounds().getCenter());
     sf::Text Credits(Font1, "Credits: \nGame by Zane\nMammal by Ryan\nIcons by Hilmy Abiyyu A, meaicon, BomSymbols", text_size);
     sf::Text TotalTurns(Font1, "Total turns: ", text_size);
-    
-    // Gameplay text
-    sf::Text TurnText(Font1, "Turns: ", text_size);
-    sf::Text LevelText(Font1, "Levels: ", text_size);
-    sf::Text CompletionText(Font1, "Player wins", text_size);
 
     bool credits_visible = false;
+    bool show_debug = false;
 
     // Button setup
     std::vector<Button> menu_buttons;
     std::vector<Button> gameplay_buttons;
     std::vector<Button> debug_buttons;
 
-    const int menu_button_count = 6;
-    std::string menu_button_roles[menu_button_count] = { "Play", "Credit", "Quit", "VSync: On", "Clear save", "Menu" };
-    std::string gameplay_button_roles[3] = { "Pass turn", "Attack", "Special" };
-    std::string debug_button_roles[3] = { "Infinite turn: Off", "Prev level", "Next level" };
+    const int menu_button_count = 5;
+    std::string menu_button_roles[menu_button_count] = { "Play", "Credit", "Quit", "VSync: On", "Clear save"};
+    std::string gameplay_button_roles[4] = { "Pass turn", "Attack", "Special", "Reset Level"};
+    std::string debug_button_roles[3] = { "Inf turn: Off", "Prev level", "Next level" };
+
+    // Create THE menu button
+    Button MenuButton({ 600.f, 650.f }, sf::Color::Green, "Menu");
+    MenuButton.text.setFont(Font1);
 
     // Create every menu button
     for (int i = 0; i < menu_button_count; i++)
@@ -111,7 +110,7 @@ int main()
     }
 
     // Create every gameplay button
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 4; i++)
     {
         // Makes button with location, colour, text 
         Button NewButton({ 150.f * i, 650.f }, sf::Color::Red, gameplay_button_roles[i]);
@@ -131,11 +130,6 @@ int main()
     // Game loop
     while (window.isOpen())
     {
-        // Set position and size relative to the window
-        TitleText.setPosition(sf::Vector2f(window.getSize().x / 2, window.getSize().y / 8));
-        Credits.setPosition(sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2));
-        CompletionText.setPosition(sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2));
-
         background_shape.setSize(sf::Vector2f(window.getSize()));
 
         // Update mouse pos
@@ -152,9 +146,19 @@ int main()
             // Catch the resize events
             if (const auto* resized = event->getIf<sf::Event::Resized>())
             {
-                // update the view to the new size of the window
-                sf::FloatRect visibleArea({ 0.f, 0.f }, sf::Vector2f(resized->size));
-                window.setView(sf::View(visibleArea));
+                sf::Vector2u size = window.getSize();
+
+                if (size.y * width_ratio <= size.x)
+                {
+                    size.x = size.y * width_ratio;
+                }
+                else if (size.x * height_ratio <= size.y)
+                {
+                    size.y = size.x * height_ratio;
+                }
+
+                // set the new size
+                window.setSize(size);
             }
 
             if (const auto* keyPressed = event->getIf<sf::Event::MouseButtonPressed>())
@@ -209,15 +213,24 @@ int main()
                             // Clear save
                             if (i == 4)
                             {
+                                // Revert all best turns
+                                for (int i = 0; i < best_turns.size(); i++)
+                                {
+                                    best_turns[i] = 100;
+                                }
+
                                 Save1.ClearSave();
                             }
+                        }
+                    }
 
-                            // Return to menu
-                            if (i == 5)
-                            {
-                                credits_visible = false;
-                                game_start = false;
-                            }
+                    if (credits_visible)
+                    {
+                        // Return to menu
+                        if (MenuButton.m_ButtonShape.getGlobalBounds().contains(mouse_pos))
+                        {
+                            credits_visible = false;
+                            game_start = false;
                         }
                     }
                 }
@@ -230,14 +243,13 @@ int main()
                     // Did user click on a button
                     for (int i = 0; i < gameplay_buttons.size(); i++)
                     {
-
-                        // Menu
+                        // Gameplay buttons
                         if (gameplay_buttons[i].m_ButtonShape.getGlobalBounds().contains(mouse_pos))
                         {
                             // Pass turn
                             if (i == 0)
                             {
-                                levels[current_level].PassTurn();
+                                levels[current_level].EnemyTurn();
                             }
 
                             // Attack
@@ -251,6 +263,28 @@ int main()
                             {
                                 levels[current_level].PlayerSpecial();
                             }
+
+                            // Reset level
+                            if (i == 3)
+                            {
+                                levels[current_level].Reset();
+                            }
+                        }
+                    }
+
+                    // Return to menu
+                    if (MenuButton.m_ButtonShape.getGlobalBounds().contains(mouse_pos))
+                    {
+                        game_start = false;
+                    }
+
+                    // Next Level
+                    // All enemies killed, show next level button
+                    if (!levels[current_level].CheckAllEnemiesAlive())
+                    {
+                        if (debug_buttons[2].m_ButtonShape.getGlobalBounds().contains(mouse_pos))
+                        {
+                            SwapLevel(current_level + 1, window.getSize());
                         }
                     }
                 }
@@ -263,18 +297,6 @@ int main()
                 if (keyPressed->code == sf::Keyboard::Key::Space)
                 {
                     levels[current_level].Combat();
-                }
-
-                // Increase resolution
-                if (keyPressed->code == sf::Keyboard::Key::Add)
-                {
-                    window.setSize({ window.getSize().x + 100, window.getSize().y + 100 });
-                }
-
-                // Decrease resolution
-                if (keyPressed->code == sf::Keyboard::Key::Subtract)
-                {
-                    window.setSize({ window.getSize().x - 100, window.getSize().y - 100 });
                 }
 
                 // Game menu and play toggle
@@ -293,6 +315,13 @@ int main()
                 if (keyPressed->code == sf::Keyboard::Key::S)
                 {
                     levels[current_level].PlayerSpecial();
+                }
+
+                // Show debug window
+                if (keyPressed->code == sf::Keyboard::Key::D)
+                {
+                    show_debug = !show_debug;
+                    debug_window.setVisible(show_debug);
                 }
             }
         }
@@ -313,7 +342,7 @@ int main()
             if (const auto* keyPressed = event->getIf<sf::Event::MouseButtonPressed>())
             {
                 // Did user click on a button
-                for (int i = 0; i < gameplay_buttons.size(); i++)
+                for (int i = 0; i < debug_buttons.size(); i++)
                 {
                     // Menu
                     if (debug_buttons[i].m_ButtonShape.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(debug_window))))
@@ -346,38 +375,16 @@ int main()
             }
         }
 
+
         levels[current_level].Update();
 
-        // All enemies killed, move to next level
-        if (!levels[current_level].CheckAllEnemiesAlive())
-        {
-            CompletionText.setString("Player wins");
-
-            // Move to next level
-            if (current_level < max_levels - 1)
-            {
-                SwapLevel(current_level + 1, window.getSize());
-            }
-
-            // Return to menu
-            else
-            {
-                game_start = false;
-            }
-        }
-
-        // All players killed return to menu
-        if (!levels[current_level].CheckAllPlayersAlive())
-        {
-            CompletionText.setString("Enemy wins");
-            game_start = false;
-        }
 
         // Display fastest completion to the user
         std::string turns_string = "Fastest completion:\n";
 
         for (int i = 0; i < best_turns.size(); i++)
         {
+            // Only get the best turns
             if (levels[i].GetBestTurns() < best_turns[i])
             {
                 best_turns[i] = levels[i].GetBestTurns();
@@ -396,6 +403,7 @@ int main()
         if (!game_start)
         {
             // Draw the text here
+            TitleText.setPosition({700, 100});
             window.draw(TitleText);
 
             // Draw menu buttons
@@ -414,11 +422,12 @@ int main()
             // Draw credits
             else
             {
+                Credits.setPosition({300, 200});
                 window.draw(Credits);
 
-                // Draw the menu button
-                window.draw(menu_buttons[menu_button_count - 1].m_ButtonShape);
-                window.draw(menu_buttons[menu_button_count - 1].text);
+                // Draw THE menu button
+                window.draw(MenuButton.m_ButtonShape);
+                window.draw(MenuButton.text);
             }
         }
 
@@ -427,14 +436,9 @@ int main()
         {
             window.draw(background_shape);
 
-            // Draw the current turn
-            TurnText.setPosition({1000.f, 0.f});
-            TurnText.setString("Turns: " + std::to_string(levels[current_level].GetTurn()));
-            window.draw(TurnText);
-
             // Draw the current level
-            LevelText.setPosition({ 0.f, 800.f });
-            LevelText.setString("Level: " + std::to_string(current_level + 1));
+            sf::Text LevelText(Font1, "Level: " + std::to_string(current_level + 1), 30);
+            LevelText.setPosition({ 0.f, 700.f });
             window.draw(LevelText);
 
             levels[current_level].Draw(window);
@@ -446,17 +450,20 @@ int main()
                 window.draw(gameplay_buttons[i].text);
             }
 
-            if (!levels[current_level].CheckAllEnemiesAlive() || !levels[current_level].CheckAllPlayersAlive())
+            // All enemies killed, show next level button
+            if (!levels[current_level].CheckAllEnemiesAlive())
             {
-                window.draw(CompletionText);
+                window.draw(debug_buttons[2].m_ButtonShape);
+                window.draw(debug_buttons[2].text);
             }
 
-            // Draw the menu button
-            window.draw(menu_buttons[menu_button_count - 1].m_ButtonShape);
-            window.draw(menu_buttons[menu_button_count - 1].text);
+            // Draw THE menu button
+            window.draw(MenuButton.m_ButtonShape);
+            window.draw(MenuButton.text);
         }
 
         window.display();
+
 
         // Debug window events
         debug_window.clear();
@@ -464,12 +471,12 @@ int main()
         // Update button text
         if (levels[current_level].infinite_turn)
         {
-            debug_buttons[0].text.setString("Infinite turn : On");
+            debug_buttons[0].text.setString("Inf turn: On");
         }
 
         else
         {
-            debug_buttons[0].text.setString("Infinite turn: Off");
+            debug_buttons[0].text.setString("Inf turn: Off");
         }
 
         // Draw debug buttons

@@ -7,22 +7,18 @@ Player::Player(sf::Vector2f _start_pos, EntityTypes _entity_type)
 
 	player_shape.setSize({64.f, 64.f});
 
-	SetStats();
-
 	// Icon text location
 	attack_icon.setSize({ 32.f, 32.f });
 	move_icon.setSize({ 32.f, 32.f });
 	special_icon.setSize({ 32.f, 32.f });
-	attack_icon.setPosition({ 700.f, 0.f });
-	move_icon.setPosition({ 700.f, 32.f });
-	special_icon.setPosition({ 700.f, 64.f });
-
-	entity_text.setPosition({ 800, 0 });
+	attack_icon.setPosition({ 650.f, 0.f });
+	move_icon.setPosition({ 650.f, 32.f });
+	special_icon.setPosition({ 650.f, 64.f });
 
 	// Location and size
 	player_shape.setTextureRect(sf::IntRect({ 0, 0 }, { 32, 32 }));
 
-	Reset();
+	SetStats();
 
 	// y = (2x + 1)^2
 	// Y is the number of tiles to be calculated and x is the range value
@@ -44,6 +40,8 @@ Player::Player(sf::Vector2f _start_pos, EntityTypes _entity_type)
 			}
 		}
 	}
+
+	Reset();
 }
 
 Player::~Player()
@@ -81,7 +79,24 @@ void Player::MoveTo(sf::Vector2f _move_pos)
 	}
 }
 
-// Update visual icons if they arr available
+// Reset the range tiles as well
+void Player::Reset()
+{
+	Entity::Reset(); // Call the parent reset method
+
+	// Range tiles that move with the player
+	int k = 0;
+	for (int i = -range; i < range + 1; i++)
+	{
+		for (int j = -range; j < range + 1; j++)
+		{
+			range_tiles[k].setPosition({ (float)(64 * i) + player_shape.getPosition().x, (float)(64 * j) + player_shape.getPosition().y });
+			k++;
+		}
+	}
+}
+
+// Update visual icons if they are available
 void Player::UpdateIcons()
 {
 	if (can_move)

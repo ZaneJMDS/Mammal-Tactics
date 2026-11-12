@@ -5,7 +5,6 @@ File name   :   Player.h
 **************************************************************************/
 
 #include <SFML/Graphics.hpp>
-#include <iostream>
 #pragma once
 #include "Entity.h"
 
@@ -27,8 +26,10 @@ public:
 	void MoveTo(sf::Vector2f _move_pos);
 
 	// Indicators for if the user has this enemy selected
-	void SetTarget() override { player_shape.setFillColor(sf::Color::Blue); }
-	void UnsetTarget() override { player_shape.setFillColor(sf::Color::Green); }
+	void SetTarget() override { player_shape.setFillColor(sf::Color(255, 255, 255, 255)); }
+	void UnsetTarget() override { player_shape.setFillColor(sf::Color(255, 255, 255, 128)); }
+
+	void Reset() override;
 
 	void UpdateIcons();
 	void Animate();

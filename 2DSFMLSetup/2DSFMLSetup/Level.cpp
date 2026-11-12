@@ -92,10 +92,28 @@ void Level::LoadLevel()
 
 			// Entities
 			// Melee Enemy
-			if (level_array[x][y] == 'e')
+			if (level_array[x][y] == 'a')
 			{
 				sf::Vector2f start_pos(x * 64, y * 64);
 				Enemy NewEnemy(start_pos, melee);
+				NewEnemy.entity_text.setFont(entity_font);
+				enemies.push_back(NewEnemy);
+			}
+
+			// Ranged enemy
+			if (level_array[x][y] == 'b')
+			{
+				sf::Vector2f start_pos(x * 64, y * 64);
+				Enemy NewEnemy(start_pos, ranged);
+				NewEnemy.entity_text.setFont(entity_font);
+				enemies.push_back(NewEnemy);
+			}
+
+			// Tank enemy
+			if (level_array[x][y] == 'c')
+			{
+				sf::Vector2f start_pos(x * 64, y * 64);
+				Enemy NewEnemy(start_pos, tank);
 				NewEnemy.entity_text.setFont(entity_font);
 				enemies.push_back(NewEnemy);
 			}
@@ -106,7 +124,6 @@ void Level::LoadLevel()
 				sf::Vector2f start_pos(x * 64, y * 64);
 				Player NewPlayer(start_pos, melee);
 
-				// Why do I have to hold these here?
 				NewPlayer.player_shape.setTexture(&player_tex);
 				NewPlayer.attack_icon.setTexture(&attack_icon_tex);
 				NewPlayer.move_icon.setTexture(&footstep_icon_tex);
@@ -122,7 +139,6 @@ void Level::LoadLevel()
 				sf::Vector2f start_pos(x * 64, y * 64);
 				Player NewPlayer(start_pos, ranged);
 
-				// Why do I have to hold these here?
 				NewPlayer.player_shape.setTexture(&player_tex);
 				NewPlayer.attack_icon.setTexture(&attack_icon_tex);
 				NewPlayer.move_icon.setTexture(&footstep_icon_tex);
@@ -138,7 +154,6 @@ void Level::LoadLevel()
 				sf::Vector2f start_pos(x * 64, y * 64);
 				Player NewPlayer(start_pos, tank);
 
-				// Why do I have to hold these here?
 				NewPlayer.player_shape.setTexture(&player_tex);
 				NewPlayer.attack_icon.setTexture(&attack_icon_tex);
 				NewPlayer.move_icon.setTexture(&footstep_icon_tex);
@@ -173,6 +188,8 @@ void Level::UnloadLevel()
 	}
 
 	level_tiles.clear();
+	players.clear();
+	enemies.clear();
 
 	// Get the shortest amount of turns
 	if (turns < best_turns)
@@ -202,6 +219,8 @@ void Level::Reset()
 // Player clicks a position on the grid
 void Level::Click(sf::Vector2f _mouse_pos)
 {
+	bool touching_enemy = false;
+
 	for (int i = 0; i < enemies.size(); i++)
 	{
 		// Did user click on an enemy
@@ -210,6 +229,7 @@ void Level::Click(sf::Vector2f _mouse_pos)
 			// Change selected enemy
 			enemies[current_enemy].UnsetTarget();
 			current_enemy = i;
+			touching_enemy = true;
 		}
 	}
 
@@ -229,8 +249,11 @@ void Level::Click(sf::Vector2f _mouse_pos)
 		// Did user click on an empty tile
 		if (level_back_tiles[i]->getGlobalBounds().contains(_mouse_pos))
 		{
-			// Move the selected player
-			players[current_player].MoveTo(_mouse_pos);
+			// Move the selected player if they selected an empty tile
+			if (!touching_enemy)
+			{
+				players[current_player].MoveTo(_mouse_pos);
+			}
 		}
 	}
 
@@ -243,11 +266,10 @@ void Level::Display()
 {
 	// Player events
 	players[current_player].Animate();
-	players[current_player].Display(); // Communicate the top is player
+	players[current_player].Display();
 	players[current_player].UpdateIcons(); // Change colour of icons when they have performed their action
 
 	// Enemy events
-	enemies[current_enemy].Animate();
 	enemies[current_enemy].Display();
 }
 
@@ -284,27 +306,41 @@ void Level::CollisionChecks()
 		// Out of the map
 		if (players[current_player].range_tiles[i].getPosition().x > 600.f || players[current_player].range_tiles[i].getPosition().y > 600.f)
 		{
-			players[current_player].range_tiles[i].setFillColor(sf::Color(0, 0, 0, 0));
+			players[current_player].range_tiles[i].setFillColor(sf::Color(0, 0, 0, 0)); // Range tiles no longer visible
 		}
 	}
 
-
-
-	// Wall tiles
-	for (int i = 0; i < wall_tiles.size(); i++)
+	// Enemy colliding with
+	for (int j = 0; j < enemies.size(); j++)
 	{
-		// With player
-		if (players[current_player].player_shape.getGlobalBounds().findIntersection(wall_tiles[i]->getGlobalBounds()))
-		{
-			players[current_player].player_shape.move({ -64, 0 });
-		}
-
-		// With enemy
-		for (int j = 0; j < enemies.size(); j++)
+		// Wall tiles
+		for (int i = 0; i < wall_tiles.size(); i++)
 		{
 			if (enemies[j].enemy_shape.getGlobalBounds().findIntersection(wall_tiles[i]->getGlobalBounds()))
 			{
-				enemies[j].enemy_shape.move({ -64, 0 }); // TODO NEED TO IMPROVE
+				enemies[j].MoveBack();
+			}
+		}
+		
+		// Players
+		for (int i = 0; i < players.size(); i++)
+		{
+			if (enemies[j].enemy_shape.getGlobalBounds().findIntersection(players[i].player_shape.getGlobalBounds()))
+			{
+				enemies[j].MoveBack();
+			}
+		}
+
+		// With other enemies
+		for (int i = 0; i < enemies.size(); i++)
+		{
+			// Don't compare with self
+			if (i != j)
+			{
+				if (enemies[j].enemy_shape.getGlobalBounds().findIntersection(enemies[i].enemy_shape.getGlobalBounds()))
+				{
+					enemies[j].MoveBack();
+				}
 			}
 		}
 	}
@@ -402,9 +438,7 @@ void Level::PassTurn()
 	{
 		if (infinite_turn)
 		{
-			players[i].can_attack = true;
-			players[i].can_move = true;
-			players[i].can_special = true;
+			players[i].CanAction();
 		}
 
 		if (players[i].can_attack || players[i].can_move || players[i].can_special)
@@ -423,31 +457,37 @@ void Level::PassTurn()
 // Perform all of the enemy moves and give the player back their turn
 void Level::EnemyTurn()
 {
-	// Every enemy performs an action
-	for (int i = 0; i < enemies.size(); i++)
+	// Players need to be alive
+	if (CheckAllPlayersAlive())
 	{
-		// Check all players in range
-		for (int j = 0; j < players.size(); j++)
+		// Every enemy performs an action
+		for (int i = 0; i < enemies.size(); i++)
 		{
-			Attack(&enemies[i], &players[j]); // If in range, attack first
-			enemies[i].Move();
-			Attack(&enemies[i], &players[j]); // Attack now, if now in range
-			enemies[i].Special();
+			// Check all players in range
+			for (int j = 0; j < players.size(); j++)
+			{
+				Attack(&enemies[i], &players[j]); // If in range, attack first
+				enemies[i].Move();
+				Attack(&enemies[i], &players[j]); // Attack now, if now in range
+
+				int special_action = rand() % 2;
+
+				if (special_action == 1)
+				{
+					enemies[i].Special();
+				}
+			}
+
+			enemies[i].CanAction();
 		}
-		
-		enemies[i].can_move = true;
-		enemies[i].can_attack = true;
-		enemies[i].can_special = true;
-	}
 
-	turns++; // Next turn
+		turns++; // Next turn
 
-	// Allow all player units to move again
-	for (int i = 0; i < players.size(); i++)
-	{
-		players[i].can_move = true;
-		players[i].can_attack = true;
-		players[i].can_special = true;
+		// Allow all player units to move again
+		for (int i = 0; i < players.size(); i++)
+		{
+			players[i].CanAction();
+		}
 	}
 }
 
@@ -485,7 +525,13 @@ void Level::Draw(sf::RenderWindow& _window)
 	}
 
 	// Draw current player's state
+	sf::Text PlayerStatsText(entity_font, "Current Player Stats:", 30);
+	PlayerStatsText.setPosition(sf::Vector2f(700, 0));
+	_window.draw(PlayerStatsText);
+
+	players[current_player].entity_text.setPosition(sf::Vector2f(700, 30));
 	_window.draw(players[current_player].entity_text);
+
 	_window.draw(players[current_player].attack_icon);
 	_window.draw(players[current_player].move_icon);
 	_window.draw(players[current_player].special_icon);
@@ -496,5 +542,35 @@ void Level::Draw(sf::RenderWindow& _window)
 		_window.draw(enemies[i].enemy_shape);
 	}
 
+	// Draw current enemy's state
+	sf::Text EnemyStatsText(entity_font, "Current Enemy Stats:", 30);
+	EnemyStatsText.setPosition(sf::Vector2f(700, 150));
+	_window.draw(EnemyStatsText);
+	
+	enemies[current_enemy].entity_text.setPosition(sf::Vector2f(700, 180));
 	_window.draw(enemies[current_enemy].entity_text);
+
+	// Draw the current turn
+	sf::Text TurnText(entity_font, "Turns: " + std::to_string(turns), 30);
+	TurnText.setPosition({ 150.f, 700.f });
+	_window.draw(TurnText);
+
+	// Draw if the player wins or loses
+	sf::Text CompletionText(entity_font, "Players win", 30);
+	CompletionText.setPosition({800.f, 400.f});
+
+	if (!CheckAllEnemiesAlive())
+	{
+		CompletionText.setString("Players win");
+	}
+
+	if (!CheckAllPlayersAlive())
+	{
+		CompletionText.setString("Enemies win");
+	}
+
+	if (!CheckAllEnemiesAlive() || !CheckAllPlayersAlive())
+	{
+		_window.draw(CompletionText);
+	}
 }

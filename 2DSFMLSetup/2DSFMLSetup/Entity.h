@@ -7,7 +7,6 @@ File name   :   Entity.h
 #pragma once
 #include <string>
 #include <SFML/Graphics.hpp>
-#include <iostream>
 
 enum EntityTypes
 {
@@ -33,7 +32,8 @@ public:
 
 	void SetStats();
 	void Display();
-	void Reset();
+	virtual void Reset();
+	void CanAction();
 
 	// Get methods
 	int GetHealth() { return health; }

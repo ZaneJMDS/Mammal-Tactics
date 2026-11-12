@@ -1,21 +1,22 @@
 # Mammal-Tactics
 
-Top down strategy game featuring the Mammal
+Top down strategy game featuring the mammal.
+
+Note: Enemys are squares. If they are blue then they are selected. If they are green then they aren't
 
 Controls:
 Click a player unit to have them selected.
 Click a enemy unit to have them selected.
 Click a blank tile to move them there. (If the selected player unit is within range)
 Press <p> or pass turn to give turn to the enemy. (Turn will automatically pass if you have no moves left)
-Press <space> to have target player attack target enemy if they are within range.
-Press <r> to reset the level
+Press <space> or attack to have target player fight target enemy if they are within range.
+Press <r> or reset button to reset the level
+Press <ESC> or menu/play buttons to switch between the gameplay and menu
 
 Debug Options:
-In the debug window you can enable cheats like
+Press <d> to open the debug window so you can enable cheats like:
 Infinite turn
-Load levels with number keys
-
-When you are happy and satisfied click the pass turn button (Note: if you have done all possible moves, the game will do this for you)
+level switcher
 
 features:
 * Unit's range is shown by light blue tiles

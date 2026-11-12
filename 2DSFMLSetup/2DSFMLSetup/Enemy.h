@@ -22,13 +22,15 @@ public:
 
 	// Actions the enemy can take on their turn
 	void Move();
+	void MoveBack();
 
 	// Indicators for if the user has this enemy selected
 	void SetTarget() override { enemy_shape.setFillColor(sf::Color::Blue); }
 	void UnsetTarget() override { enemy_shape.setFillColor(sf::Color::Green); }
 
-	void Animate();
-
 	sf::RectangleShape* GetShape() override { return &enemy_shape; }
+
+private:
+	sf::Vector2f last_pos;
 };
 
