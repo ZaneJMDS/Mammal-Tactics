@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Release\\SaveManager.obj",
+            "outputs": [
+                "Release\\SaveManager.h.obj.dt.module.json",
+                "Release\\SaveManager.h.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}

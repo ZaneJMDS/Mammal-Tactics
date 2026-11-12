@@ -410,7 +410,7 @@ int main()
             if (!credits_visible)
             {
                 // Draw menu buttons and text
-                for (int i = 0; i < menu_button_count - 1; i++)
+                for (int i = 0; i < menu_button_count; i++)
                 {
                     window.draw(menu_buttons[i].m_ButtonShape);
                     window.draw(menu_buttons[i].text);
