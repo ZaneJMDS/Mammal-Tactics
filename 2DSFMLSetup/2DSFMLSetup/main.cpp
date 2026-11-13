@@ -210,7 +210,7 @@ int main()
                                 Save1.SaveFile(current_level, Vsync, window.getSize(), best_turns);
                             }
 
-                            // Clear save
+                            // Clear save and reset level
                             if (i == 4)
                             {
                                 // Revert all best turns
@@ -218,6 +218,9 @@ int main()
                                 {
                                     best_turns[i] = 100;
                                 }
+
+                                // Reset progress
+                                SwapLevel(0, window.getSize());
 
                                 Save1.ClearSave();
                             }
